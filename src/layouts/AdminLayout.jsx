@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import AdminSidebar from '../components/Admin/AdminSidebar';
 import { FaBars } from 'react-icons/fa';
+import logo from '../assets/logo.jpeg'
 
 const AdminLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -24,7 +25,7 @@ const AdminLayout = () => {
       <main className="flex-1 lg:ml-[260px] flex flex-col min-h-screen overflow-x-hidden">
         {/* Mobile Header */}
         <div className="lg:hidden bg-white h-16 flex items-center px-4 justify-between border-b border-gray-200 shrink-0">
-           <img src="/balagam_logo_final.png" alt="Balagam TV" className="h-8 object-contain" />
+           <img src={logo} alt="Balagam TV" className="h-8 object-contain" />
            <button onClick={() => setSidebarOpen(true)} className="text-[#1e293b] p-2 focus:outline-none">
              <FaBars size={24} />
            </button>
