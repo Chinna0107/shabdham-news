@@ -1,7 +1,15 @@
 import { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { FaDownload, FaWhatsapp, FaCalendarAlt, FaSearch } from 'react-icons/fa';
+import { FaDownload, FaWhatsapp, FaCalendarAlt, FaSearch, FaTimes } from 'react-icons/fa';
 import { fetchEpapers, fetchEpaperByDate } from '../services/api';
+import { pdfjs, Document, Page } from 'react-pdf';
+import 'react-pdf/dist/Page/AnnotationLayer.css';
+import 'react-pdf/dist/Page/TextLayer.css';
+
+pdfjs.GlobalWorkerOptions.workerSrc = new URL(
+  'pdfjs-dist/build/pdf.worker.min.mjs',
+  import.meta.url,
+).toString();
 
 const Epaper = () => {
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
@@ -9,6 +17,12 @@ const Epaper = () => {
   const [pastEditions, setPastEditions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searching, setSearching] = useState(false);
+  const [isPdfModalOpen, setIsPdfModalOpen] = useState(false);
+  const [numPages, setNumPages] = useState(null);
+
+  function onDocumentLoadSuccess({ numPages }) {
+    setNumPages(numPages);
+  }
 
   // Load all editions on mount
   useEffect(() => {
@@ -115,20 +129,23 @@ const Epaper = () => {
                   {formatShortDate(todayEdition.published_date) === formatShortDate(new Date().toISOString()) ? "TODAY'S EDITION" : formatShortDate(todayEdition.published_date)}
                 </div>
                 
-                <div className="aspect-[3/4] w-full bg-gray-200 rounded-lg overflow-hidden border-2 border-gray-100 mb-6 relative">
+                <div 
+                  className="aspect-[3/4] w-full bg-gray-200 rounded-lg overflow-hidden border-2 border-gray-100 mb-6 relative cursor-pointer"
+                  onClick={() => setIsPdfModalOpen(true)}
+                >
                   <img 
                     src={todayEdition.cover_image || 'https://placehold.co/800x1000?text=No+Cover'} 
                     alt={todayEdition.title}
-                    className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700 cursor-pointer"
+                    className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700"
                   />
                   
                   {/* Hover overlay to read */}
                   {todayEdition.pdf_url && (
-                    <a href={todayEdition.pdf_url} target="_blank" rel="noopener noreferrer" className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer backdrop-blur-[2px]">
-                      <span className="bg-white text-brand-red font-bold py-3 px-8 rounded-full shadow-2xl transform hover:scale-105 transition-transform text-lg">
+                    <div className="absolute inset-0 w-full h-full bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-[2px]">
+                      <span className="bg-white text-brand-red font-bold py-3 px-8 rounded-full shadow-2xl transform hover:scale-105 transition-transform text-lg pointer-events-none">
                         చదవండి (Read Now)
                       </span>
-                    </a>
+                    </div>
                   )}
                 </div>
 
@@ -141,14 +158,12 @@ const Epaper = () => {
                   
                   <div className="flex items-center space-x-3 w-full sm:w-auto">
                     {todayEdition.pdf_url && (
-                      <a 
-                        href={todayEdition.pdf_url} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="flex-1 sm:flex-none flex items-center justify-center bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold py-2.5 px-5 rounded-lg transition-colors"
+                      <button 
+                        onClick={() => setIsPdfModalOpen(true)}
+                        className="flex-1 sm:flex-none flex items-center justify-center bg-brand-red hover:bg-red-700 text-white font-bold py-2.5 px-5 rounded-lg transition-colors shadow-sm"
                       >
-                        <FaDownload className="mr-2" /> Download PDF
-                      </a>
+                        చదవండి (Read Edition)
+                      </button>
                     )}
                     <button 
                       onClick={() => {
@@ -213,6 +228,41 @@ const Epaper = () => {
 
         </div>
       </div>
+
+      {/* PDF Viewer Modal */}
+      {isPdfModalOpen && todayEdition?.pdf_url && (
+        <div className="fixed inset-0 z-[100] bg-black/95 flex flex-col">
+          <div className="flex justify-between items-center p-4 text-white bg-black/50 border-b border-white/10 shrink-0">
+            <h3 className="font-bold text-lg md:text-xl truncate pr-4">{todayEdition.title}</h3>
+            <button 
+              onClick={() => setIsPdfModalOpen(false)} 
+              className="p-2 bg-white/10 rounded-full hover:bg-white/20 transition-colors"
+            >
+              <FaTimes size={24} />
+            </button>
+          </div>
+          <div className="flex-1 w-full bg-[#525659] flex justify-center overflow-y-auto pt-4 pb-12">
+            <Document
+              file={todayEdition.pdf_url}
+              onLoadSuccess={onDocumentLoadSuccess}
+              className="flex flex-col items-center gap-6"
+              loading={<div className="text-white text-lg mt-10">PDF లోడ్ అవుతోంది...</div>}
+              error={<div className="text-red-400 text-lg mt-10">PDF లోడ్ చేయడంలో లోపం.</div>}
+            >
+              {Array.from(new Array(numPages), (el, index) => (
+                <div key={`page_${index + 1}`} className="shadow-2xl">
+                  <Page 
+                    pageNumber={index + 1} 
+                    renderTextLayer={false} 
+                    renderAnnotationLayer={false}
+                    width={Math.min(window.innerWidth - 32, 900)}
+                  />
+                </div>
+              ))}
+            </Document>
+          </div>
+        </div>
+      )}
     </>
   );
 };
