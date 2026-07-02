@@ -69,7 +69,7 @@ const Navbar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
     <>
       <div
         className={cn(
-          'w-full text-white shadow-lg z-40 transition-all duration-300 border-b border-white/10',
+          'hidden md:block w-full text-white shadow-lg z-40 transition-all duration-300 border-b border-white/10',
           isSticky ? 'fixed top-0 left-0 animate-slideDown glass-dark' : 'relative premium-gradient'
         )}
       >

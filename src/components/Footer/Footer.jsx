@@ -18,16 +18,16 @@ const Footer = () => {
               SHABDHAM TV is a leading Telugu news portal providing the latest updates on politics, movies, sports, and local news with accuracy and speed.
             </p>
             <div className="flex space-x-4">
-              <a href="#" className="w-8 h-8 rounded-full bg-gray-800 flex items-center justify-center hover:bg-brand-red transition-colors">
+              <a href="https://www.facebook.com/people/Shabdham-Chanel/61558708151658/" className="w-8 h-8 rounded-full bg-gray-800 flex items-center justify-center hover:bg-brand-red transition-colors">
                 <FaFacebookF size={14} />
               </a>
               <a href="#" className="w-8 h-8 rounded-full bg-gray-800 flex items-center justify-center hover:bg-brand-red transition-colors">
                 <FaTwitter size={14} />
               </a>
-              <a href="#" className="w-8 h-8 rounded-full bg-gray-800 flex items-center justify-center hover:bg-brand-red transition-colors">
+              <a href="https://www.instagram.com/shabdham_peoples_voice/reels/" className="w-8 h-8 rounded-full bg-gray-800 flex items-center justify-center hover:bg-brand-red transition-colors">
                 <FaInstagram size={14} />
               </a>
-              <a href="#" className="w-8 h-8 rounded-full bg-gray-800 flex items-center justify-center hover:bg-brand-red transition-colors">
+              <a href="https://www.youtube.com/@SHABDHAM-on7qu/featured" className="w-8 h-8 rounded-full bg-gray-800 flex items-center justify-center hover:bg-brand-red transition-colors">
                 <FaYoutube size={14} />
               </a>
             </div>

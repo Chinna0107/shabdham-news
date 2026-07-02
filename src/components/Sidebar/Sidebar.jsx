@@ -37,10 +37,10 @@ const Sidebar = () => {
           <a href="#" className="flex items-center justify-center space-x-2 bg-[#1da1f2] text-white py-2 rounded text-sm hover:opacity-90 transition-opacity">
             <span>Twitter</span>
           </a>
-          <a href="#" className="flex items-center justify-center space-x-2 bg-[#c32aa3] text-white py-2 rounded text-sm hover:opacity-90 transition-opacity">
+          <a href="https://www.instagram.com/shabdham_peoples_voice/reels/" className="flex items-center justify-center space-x-2 bg-[#c32aa3] text-white py-2 rounded text-sm hover:opacity-90 transition-opacity">
             <span>Instagram</span>
           </a>
-          <a href="#" className="flex items-center justify-center space-x-2 bg-[#ff0000] text-white py-2 rounded text-sm hover:opacity-90 transition-opacity">
+          <a href="https://www.youtube.com/@SHABDHAM-on7qu/featured" className="flex items-center justify-center space-x-2 bg-[#ff0000] text-white py-2 rounded text-sm hover:opacity-90 transition-opacity">
             <span>YouTube</span>
           </a>
         </div>

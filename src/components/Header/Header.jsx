@@ -120,10 +120,10 @@ const Header = () => {
 
           {/* Social Icons & Report Issue */}
           <div className="flex items-center space-x-4 text-gray-400">
-            <a href="#" className="hover:text-[#1877F2] transition-colors"><FaFacebookF size={18} /></a>
-            <a href="#" className="hover:text-black transition-colors"><XIcon /></a>
+            <a href="https://www.facebook.com/people/Shabdham-Chanel/61558708151658/" className="hover:text-[#1877F2] transition-colors"><FaFacebookF size={18} /></a>
+            <a href="https://www.instagram.com/shabdham_peoples_voice/reels/" className="hover:text-black transition-colors"><XIcon /></a>
             <a href="#" className="hover:text-[#E4405F] transition-colors"><FaInstagram size={18} /></a>
-            <a href="#" className="hover:text-[#FF0000] transition-colors"><FaYoutube size={18} /></a>
+            <a href="https://www.youtube.com/@SHABDHAM-on7qu/featured" className="hover:text-[#FF0000] transition-colors"><FaYoutube size={18} /></a>
             
             <button className="bg-brand-red text-white text-xs font-bold px-3 py-1.5 rounded uppercase tracking-wider hover:bg-red-700 transition-colors ml-2 shadow-sm">
               Report Issue
