@@ -1,0 +1,37 @@
+[
+  {
+    "id": 1,
+    "title": "రాజకీయాలు",
+    "slug": "politics"
+  },
+  {
+    "id": 2,
+    "title": "రాష్ట్రీయం",
+    "slug": "state"
+  },
+  {
+    "id": 3,
+    "title": "క్రైమ్",
+    "slug": "crime"
+  },
+  {
+    "id": 4,
+    "title": "క్రీడలు",
+    "slug": "sports"
+  },
+  {
+    "id": 5,
+    "title": "టెక్నాలజీ",
+    "slug": "technology"
+  },
+  {
+    "id": 6,
+    "title": "జీవనశైలి",
+    "slug": "lifestyle"
+  },
+  {
+    "id": 7,
+    "title": "స్థానిక వార్తలు",
+    "slug": "local"
+  }
+]

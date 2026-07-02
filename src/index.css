@@ -1,0 +1,53 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Telugu:wght@400;500;600;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --color-brand-red: #b00020;
+  --color-brand-red-dark: #7a0016;
+  --color-brand-dark: #0a0a0a;
+  --color-brand-gray: #f2f4f7;
+  --color-premium-card: #ffffff;
+  --font-sans: "Noto Sans Telugu", "Inter", -apple-system, sans-serif;
+}
+
+@layer base {
+  html, body {
+    @apply font-sans bg-brand-gray text-brand-dark overflow-x-hidden antialiased;
+    width: 100%;
+    max-width: 100vw;
+  }
+}
+
+@layer utilities {
+  .glass {
+    @apply bg-white/70 backdrop-blur-md border border-white/20 shadow-sm;
+  }
+  .glass-dark {
+    @apply bg-brand-dark/80 backdrop-blur-md border border-white/10 shadow-xl;
+  }
+  .premium-shadow {
+    box-shadow: 0 10px 40px -10px rgba(0,0,0,0.08);
+  }
+  .premium-gradient {
+    background: linear-gradient(135deg, var(--color-brand-red) 0%, var(--color-brand-red-dark) 100%);
+  }
+}
+
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;  
+  overflow: hidden;
+}
+
+@keyframes ticker {
+  0% { transform: translateX(100%); }
+  100% { transform: translateX(-100%); }
+}
+
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;  
+  overflow: hidden;
+}
