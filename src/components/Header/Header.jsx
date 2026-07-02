@@ -48,7 +48,7 @@ const Header = () => {
       <TopBar />
       
       {/* Logo and Search Section */}
-      <div className="w-full px-4 lg:px-8 xl:px-12 py-3 md:py-4 flex justify-between items-center bg-white relative">
+      <div className="w-full px-4 lg:px-8 xl:px-12 py-3 md:py-4 flex justify-between items-center bg-white sticky top-0 z-[45] md:relative shadow-sm md:shadow-none">
         
         {/* Mobile Hamburger (Left) */}
         <button 
