@@ -35,7 +35,7 @@ const AdminSidebar = ({ onClose }) => {
             className="h-10 bg-white p-1 rounded object-contain mr-3"
           />
           <div className="flex flex-col">
-            <span className="text-white font-bold text-sm tracking-widest leading-tight">బలగం టీవీ</span>
+            <span className="text-white font-bold text-sm tracking-widest leading-tight">Shabdham TV</span>
             <span className="text-[10px] text-gray-400 font-semibold tracking-[0.2em]">ADMIN PANEL</span>
           </div>
         </div>

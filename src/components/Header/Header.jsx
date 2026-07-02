@@ -4,6 +4,7 @@ import { cn } from '../../utils/cn';
 import TopBar from './TopBar';
 import Navbar from './Navbar';
 import Ticker from './Ticker';
+import MobileTicker from './MobileTicker';
 import { FaSearch, FaFacebookF, FaInstagram, FaYoutube, FaWhatsapp, FaTimes, FaBars } from 'react-icons/fa';
 import logoImage from '../../assets/logo.jpeg';
 // Use a simple X icon for Twitter/X
@@ -134,7 +135,10 @@ const Header = () => {
       </div>
 
       <Navbar isMobileMenuOpen={isMobileMenuOpen} setIsMobileMenuOpen={setIsMobileMenuOpen} />
-      <Ticker />
+      <div className="hidden md:block">
+        <Ticker />
+      </div>
+      <MobileTicker />
     </header>
   );
 };

@@ -31,6 +31,13 @@
   .premium-gradient {
     background: linear-gradient(135deg, var(--color-brand-red) 0%, var(--color-brand-red-dark) 100%);
   }
+  .hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 .line-clamp-2 {
@@ -45,9 +52,42 @@
   100% { transform: translateX(-100%); }
 }
 
+@keyframes seamlessMarquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
 .line-clamp-3 {
   display: -webkit-box;
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;  
   overflow: hidden;
 }
+
+/* ── Shorts / Flip / Trending ── */
+
+/*
+ * touch-action MUST be in CSS (not inline style) for passive:false
+ * touch listeners to be able to call preventDefault reliably on mobile.
+ */
+/* Container AND every child must have touch-action:none.
+ * Without this, an inner overflowY:auto div on iOS claims
+ * the gesture for its own scrolling before our listener fires.
+ */
+.shorts-container,
+.shorts-container * {
+  touch-action: none;
+}
+
+/* Swipe hint bounce animation */
+@keyframes swipeHint {
+  0%   { opacity: 0; transform: translateX(-50%) translateY(0); }
+  20%  { opacity: 1; transform: translateX(-50%) translateY(0); }
+  50%  { opacity: 1; transform: translateX(-50%) translateY(-8px); }
+  80%  { opacity: 1; transform: translateX(-50%) translateY(0); }
+  100% { opacity: 0; transform: translateX(-50%) translateY(0); }
+}
+
+/* Hide scrollbars inside card text areas */
+.shorts-container *::-webkit-scrollbar { display: none; }
+

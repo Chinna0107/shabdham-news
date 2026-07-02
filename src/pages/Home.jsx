@@ -165,7 +165,7 @@ const Home = () => {
                 ))}
               </div>
               <div className="mt-8 bg-[#1e293b] rounded-2xl p-6 text-center text-white flex flex-col items-center shadow-lg shrink-0">
-                <p className="text-[14px] font-bold mb-2 tracking-wide">బలగం టీవీ</p>
+                <p className="text-[14px] font-bold mb-2 tracking-wide">SHABDHAM TV</p>
                 <p className="text-[12px] text-gray-300 mb-5 leading-relaxed px-2">
                   తాజా వార్తలు, ఎప్పటికప్పుడు బ్రేకింగ్ న్యూస్ కోసం మా వాట్సాప్ గ్రూప్ లో జాయిన్ అవ్వండి.
                 </p>
