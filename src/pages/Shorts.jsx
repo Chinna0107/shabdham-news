@@ -117,10 +117,22 @@ function NewsCard({ article, isTrending, liked, bookmarked, onLike, onBookmark, 
         <p style={{
           fontSize: 13, color: '#94a3b8', lineHeight: 1.6,
           overflow: 'hidden', display: '-webkit-box',
-          WebkitLineClamp: 2, WebkitBoxOrient: 'vertical',
+          WebkitLineClamp: 5, WebkitBoxOrient: 'vertical',
+          marginBottom: 8
         }}>
-          {article.excerpt || article.content || ''}
+          {article.excerpt || (article.content ? article.content.replace(/<[^>]*>?/gm, '') : '')}
         </p>
+        
+        <Link 
+          to={`/article/${article.slug}`} 
+          style={{
+            color: '#b00020', fontSize: 13, fontWeight: 700, 
+            textDecoration: 'none', display: 'inline-block',
+            marginTop: 'auto', paddingBottom: 10
+          }}
+        >
+          మరింత చదవండి &rarr;
+        </Link>
       </div>
 
       <div style={{
