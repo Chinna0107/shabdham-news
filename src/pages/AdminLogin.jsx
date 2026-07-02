@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { FaArrowLeft, FaEye, FaEyeSlash } from 'react-icons/fa';
 import { adminLogin } from '../services/api';
+import logo from '../assets/logo.jpeg'
 
 const AdminLogin = () => {
   const navigate = useNavigate();
@@ -38,7 +39,7 @@ const AdminLogin = () => {
           <div>
             <div className="mb-12">
               <img 
-                src="/balagam_logo_final.png" 
+                src={logo}
                 alt="Balagam TV" 
                 className="h-16 bg-white p-2 rounded-lg object-contain"
               />

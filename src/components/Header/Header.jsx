@@ -67,43 +67,59 @@ const Header = () => {
 
       <TopBar />
       
-      {/* Logo and Search Section */}
+      {/* Logo and Search Section - MOBILE */}
       <div className={cn(
-        "w-full px-4 lg:px-8 xl:px-12 py-3 md:py-4 flex justify-between items-center bg-white transition-all duration-300",
+        "w-full md:hidden flex justify-between items-center px-4 py-3 bg-black transition-all duration-300",
         isMobileSticky ? "fixed top-0 left-0 z-50 shadow-md animate-slideDown" : "relative"
       )}>
         
         {/* Mobile Hamburger (Left) */}
         <button 
-          className="md:hidden text-gray-800 p-2 -ml-2 focus:outline-none"
+          className="text-white p-1 focus:outline-none"
           onClick={() => setIsMobileMenuOpen(true)}
         >
           <FaBars size={22} />
         </button>
 
-        {/* Logo and Tagline (Center on mobile, Left on desktop) */}
-        <div className="flex flex-col items-center md:items-start absolute left-1/2 -translate-x-1/2 md:static md:translate-x-0">
+        {/* Logo and Tagline (Center) */}
+        <div className="flex flex-col items-center">
           <Link to="/" className="flex-shrink-0">
             <img 
               src={logoImage} 
               alt="Balagam TV Logo" 
-              className="h-10 md:h-[60px] object-contain mb-0.5 md:mb-1"
+              className="h-14 object-contain"
             />
           </Link>
-          <p className="text-brand-red font-bold text-[10px] md:text-[13px] tracking-wide whitespace-nowrap">నిజమే మా బలం.. ప్రజలే మా బలగం</p>
         </div>
 
         {/* Mobile Search Icon (Right) */}
         <button 
-          className="md:hidden text-gray-800 p-2 -mr-2 focus:outline-none"
-          onClick={() => setIsMobileMenuOpen(true)} // Open menu for search on mobile
+          className="text-white p-1 focus:outline-none"
+          onClick={() => setIsMobileMenuOpen(true)}
         >
           <FaSearch size={20} />
         </button>
+      </div>
 
-        {/* Right Tools (Search & Social) - Desktop Only */}
-        <div className="hidden md:flex flex-row items-center space-x-6">
-          
+      {/* Logo and Search Section - DESKTOP */}
+      <div className={cn(
+        "hidden md:flex w-full px-8 xl:px-12 py-4 justify-between items-center bg-black transition-all duration-300",
+        isMobileSticky ? "fixed top-0 left-0 z-50 shadow-md animate-slideDown" : "relative"
+      )}>
+        {/* Logo and Tagline */}
+        <div className="flex flex-col items-start">
+          <Link to="/" className="flex-shrink-0">
+            <img 
+              src={logoImage} 
+              alt="Balagam TV Logo" 
+              className="h-[60px] object-contain mb-1"
+            />
+          </Link>
+          <p className="text-brand-red font-bold text-[13px] tracking-wide whitespace-nowrap">నిజమే మా బలం.. ప్రజలే మా బలగం</p>
+        </div>
+
+        {/* Right Tools (Search & Social) */}
+        <div className="flex flex-row items-center space-x-6">
           {/* Search Bar */}
           <div className="relative w-72">
             <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
@@ -130,7 +146,6 @@ const Header = () => {
               Report Issue
             </button>
           </div>
-          
         </div>
       </div>
 

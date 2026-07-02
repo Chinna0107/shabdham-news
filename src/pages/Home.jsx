@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { fetchNews } from '../services/api';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import CategoryBlock from '../components/NewsCard/CategoryBlock';
 import { FaWhatsapp } from 'react-icons/fa';
 
@@ -21,8 +21,16 @@ const Home = () => {
   const [allNews, setAllNews] = useState([]);
   const [categoryData, setCategoryData] = useState({});
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
+    // Redirect mobile users to /flip only on their first visit
+    if (window.innerWidth <= 768 && !sessionStorage.getItem('hasRedirectedToFlip')) {
+      sessionStorage.setItem('hasRedirectedToFlip', 'true');
+      navigate('/flip', { replace: true });
+      return;
+    }
+
     const loadData = async () => {
       try {
         // Fetch latest news (no category filter) for hero + highlights

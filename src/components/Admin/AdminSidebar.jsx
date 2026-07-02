@@ -11,6 +11,7 @@ import {
   FaSignOutAlt,
   FaBullhorn
 } from 'react-icons/fa';
+import logo from "../Admin/logo.jpeg"
 
 const navItems = [
   { name: 'Dashboard', path: '/admin/dashboard', icon: FaThLarge },
@@ -30,7 +31,7 @@ const AdminSidebar = ({ onClose }) => {
       <div className="p-6 pb-8 flex items-center justify-between border-b border-gray-700/50">
         <div className="flex items-center">
           <img 
-            src="/balagam_logo_final.png" 
+            src={logo} 
             alt="Balagam TV" 
             className="h-10 bg-white p-1 rounded object-contain mr-3"
           />

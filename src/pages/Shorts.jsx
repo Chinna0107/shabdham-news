@@ -4,14 +4,12 @@ import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import ShareModal from '../components/ShareModal';
 import MobileBottomNav from '../components/MobileBottomNav';
+import { motion, useMotionValue, useTransform, useAnimation } from 'framer-motion';
 import {
   FaArrowLeft, FaFire, FaHeart, FaRegHeart,
   FaBookmark, FaRegBookmark, FaShareAlt, FaClock, FaWhatsapp
 } from 'react-icons/fa';
 
-/* ─────────────────────────────────────────────────────────────
-   Time helper
-───────────────────────────────────────────────────────────── */
 const toIST = (raw) => {
   if (!raw) return '';
   return new Date(raw).toLocaleDateString('en-IN', {
@@ -20,11 +18,9 @@ const toIST = (raw) => {
   });
 };
 
-/* ─────────────────────────────────────────────────────────────
-   Single news card — fills exactly 100vh
-───────────────────────────────────────────────────────────── */
 function NewsCard({ article, isTrending, liked, bookmarked, onLike, onBookmark, onShare }) {
   const [loaded, setLoaded] = useState(false);
+  if (!article) return null;
 
   return (
     <div style={{
@@ -33,15 +29,12 @@ function NewsCard({ article, isTrending, liked, bookmarked, onLike, onBookmark, 
       background: '#0f172a', overflow: 'hidden',
       position: 'relative',
     }}>
-
-      {/* ── Hero image — top 54% ── */}
       <div style={{
         flex: '0 0 54%',
         position: 'relative',
         background: '#1e293b',
         overflow: 'hidden',
       }}>
-        {/* shimmer skeleton */}
         {!loaded && (
           <div style={{
             position: 'absolute', inset: 0,
@@ -50,7 +43,6 @@ function NewsCard({ article, isTrending, liked, bookmarked, onLike, onBookmark, 
             animation: 'shimmer 1.5s infinite',
           }} />
         )}
-
         <img
           src={article.image || 'https://placehold.co/800x480/1e293b/2d3f55?text='}
           alt={article.title}
@@ -64,22 +56,16 @@ function NewsCard({ article, isTrending, liked, bookmarked, onLike, onBookmark, 
             pointerEvents: 'none',
           }}
         />
-
-        {/* top scrim */}
         <div style={{
           position: 'absolute', top: 0, left: 0, right: 0, height: 90,
           background: 'linear-gradient(to bottom,rgba(0,0,0,0.6),transparent)',
           pointerEvents: 'none',
         }} />
-
-        {/* bottom blend into card */}
         <div style={{
           position: 'absolute', bottom: 0, left: 0, right: 0, height: 60,
           background: 'linear-gradient(to top,#0f172a,transparent)',
           pointerEvents: 'none',
         }} />
-
-        {/* badges */}
         <div style={{
           position: 'absolute', top: 14, left: 14,
           display: 'flex', gap: 6, flexWrap: 'wrap', alignItems: 'center',
@@ -104,7 +90,6 @@ function NewsCard({ article, isTrending, liked, bookmarked, onLike, onBookmark, 
         </div>
       </div>
 
-      {/* ── Text content ── */}
       <div style={{
         flex: 1,
         display: 'flex', flexDirection: 'column',
@@ -138,79 +123,116 @@ function NewsCard({ article, isTrending, liked, bookmarked, onLike, onBookmark, 
         </p>
       </div>
 
-      {/* ── Action bar ── */}
       <div style={{
         flexShrink: 0,
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
         padding: '10px 18px 12px',
         background: '#0f172a',
         borderTop: '1px solid rgba(255,255,255,0.05)',
-      }}>
-        {/* <Link
-          to={`/article/${article.slug}`}
-          style={{
-            background: '#b00020', color: '#fff',
-            padding: '8px 18px', borderRadius: 22,
-            fontSize: 12, fontWeight: 800,
-            textDecoration: 'none', letterSpacing: 0.3,
-            boxShadow: '0 3px 12px rgba(176,0,32,0.4)',
-          }}
-        >
-          మరింత చదవండి →
-        </Link> */}
-{/* 
-        <div style={{ display: 'flex', gap: 2 }}>
-          {[
-            {
-              icon: liked
-                ? <FaHeart color="#ef4444" size={17} />
-                : <FaRegHeart color="#64748b" size={17} />,
-              label: 'Like', action: onLike,
-            },
-            {
-              icon: bookmarked
-                ? <FaBookmark color="#f59e0b" size={15} />
-                : <FaRegBookmark color="#64748b" size={15} />,
-              label: 'Save', action: onBookmark,
-            },
-            {
-              icon: <FaShareAlt color="#64748b" size={15} />,
-              label: 'Share', action: onShare,
-            },
-          ].map(({ icon, label, action }) => (
-            <button
-              key={label}
-              onClick={action}
-              style={{
-                background: 'rgba(255,255,255,0.06)',
-                border: 'none', borderRadius: 12,
-                width: 42, height: 42,
-                display: 'flex', flexDirection: 'column',
-                alignItems: 'center', justifyContent: 'center',
-                cursor: 'pointer', gap: 2,
-                WebkitTapHighlightColor: 'transparent',
-              }}
-            >
-              {icon}
-              <span style={{ fontSize: 8, color: '#475569', fontWeight: 700 }}>{label}</span>
-            </button>
-          ))}
-        </div> */}
-      </div>
+      }} />
     </div>
   );
 }
 
-/* ─────────────────────────────────────────────────────────────
-   Shorts — CSS Scroll Snap pager
+function InteractiveCard({ article, prevCard, nextCard, onPaginate, isTrending, liked, bookmarked, onLike, onBookmark, onShare, handleWheel }) {
+  const y = useMotionValue(0);
+  const controls = useAnimation();
 
-   HOW IT WORKS:
-   • A single fixed div with overflowY:'scroll' + scrollSnapType:'y mandatory'
-   • Each slide has scrollSnapAlign:'start' + scrollSnapStop:'always'
-   • The BROWSER handles all touch tracking, velocity, and snapping natively
-   • This is identical to what Way2News / TikTok do on the web
-   • A scroll listener + Math.round(scrollTop / vh) tracks the active index
-───────────────────────────────────────────────────────────── */
+  // Advanced Page Curl / Fold Effect
+  // If dragging up (y < 0), the origin is top-left, simulating pulling from the bottom-right corner.
+  // If dragging down (y > 0), the origin is bottom-left, simulating pulling from the top-right corner.
+  const transformOrigin = useTransform(y, v => v < 0 ? "top left" : "bottom left");
+  
+  // rotateX: Folds the page vertically (bottom up, or top down)
+  const rotateX = useTransform(y, [-500, 0, 500], [75, 0, -75]);
+  
+  // rotateY: Curls the right edge inward
+  const rotateY = useTransform(y, [-500, 0, 500], [25, 0, -25]);
+  
+  // rotateZ: Tilts the page slightly to emphasize the corner being pulled
+  const rotateZ = useTransform(y, [-500, 0, 500], [-10, 0, 10]);
+  
+  // Scale down slightly while folding to simulate distance
+  const scale = useTransform(y, [-500, 0, 500], [0.85, 1, 0.85]);
+  
+  // Reveal background cards while dragging
+  const nextOpacity = useTransform(y, [-100, 0], [1, 0]);
+  const prevOpacity = useTransform(y, [0, 100], [0, 1]);
+  const nextScale = useTransform(y, [-300, 0], [1, 0.9]);
+  const prevScale = useTransform(y, [0, 300], [0.9, 1]);
+
+  const swipeConfidenceThreshold = 10000;
+  const swipePower = (offset, velocity) => Math.abs(offset) * velocity;
+
+  const handleDragEnd = async (e, { offset, velocity }) => {
+    const swipe = swipePower(offset.y, velocity.y);
+    if ((swipe < -swipeConfidenceThreshold || offset.y < -120) && nextCard) {
+      await controls.start({ y: -800, opacity: 0, transition: { duration: 0.3 } });
+      onPaginate(1);
+    } else if ((swipe > swipeConfidenceThreshold || offset.y > 120) && prevCard) {
+      await controls.start({ y: 800, opacity: 0, transition: { duration: 0.3 } });
+      onPaginate(-1);
+    } else {
+      controls.start({ y: 0, opacity: 1, transition: { type: 'spring', stiffness: 300, damping: 30 } });
+    }
+  };
+
+  return (
+    <div onWheel={handleWheel} style={{ position: 'absolute', inset: 0 }}>
+      {/* Background PREV Card */}
+      {prevCard && (
+        <motion.div style={{ position: 'absolute', inset: 0, zIndex: 0, opacity: prevOpacity, scale: prevScale }}>
+          <NewsCard article={prevCard} isTrending={isTrending} />
+        </motion.div>
+      )}
+
+      {/* Background NEXT Card */}
+      {nextCard && (
+        <motion.div style={{ position: 'absolute', inset: 0, zIndex: 0, opacity: nextOpacity, scale: nextScale }}>
+          <NewsCard article={nextCard} isTrending={isTrending} />
+        </motion.div>
+      )}
+
+      {/* Foreground Interactive Card */}
+      <motion.div
+        drag="y"
+        dragConstraints={{ top: 0, bottom: 0 }}
+        dragElastic={1} // 1 = Free dragging 1:1 with finger
+        style={{
+          position: 'absolute',
+          width: '100%',
+          height: '100%',
+          cursor: 'grab',
+          zIndex: 2,
+          y,
+          rotateX,
+          rotateY,
+          rotateZ,
+          scale,
+          transformOrigin,
+          perspective: 1500,
+          boxShadow: useTransform(y, [-500, 0, 500], 
+            ["20px 50px 30px rgba(0,0,0,0.5)", "0px 0px 0px rgba(0,0,0,0)", "20px -50px 30px rgba(0,0,0,0.5)"]
+          )
+        }}
+        whileTap={{ cursor: 'grabbing' }}
+        animate={controls}
+        onDragEnd={handleDragEnd}
+      >
+        <NewsCard
+          article={article}
+          isTrending={isTrending}
+          liked={liked}
+          bookmarked={bookmarked}
+          onLike={onLike}
+          onBookmark={onBookmark}
+          onShare={onShare}
+        />
+      </motion.div>
+    </div>
+  );
+}
+
 export default function Shorts({ type = 'news' }) {
   const [news, setNews] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -219,47 +241,39 @@ export default function Shorts({ type = 'news' }) {
   const [saved, setSaved] = useState({});
   const [shareModal, setShareModal] = useState({ open: false, article: null });
 
-  const scrollRef = useRef(null);   // the snap container
-  const rafRef = useRef(null);   // requestAnimationFrame id
   const isTrending = type === 'trending';
 
-  /* ── fetch ── */
   useEffect(() => {
     setLoading(true);
     setNews([]);
     setActiveIdx(0);
-    if (scrollRef.current) scrollRef.current.scrollTop = 0;
     const fn = isTrending ? fetchTrendingNews : fetchNews;
     fn().then(setNews).catch(console.error).finally(() => setLoading(false));
   }, [type]);
 
-  /* ── track which slide is visible via scroll events ── */
-  useEffect(() => {
-    const el = scrollRef.current;
-    if (!el || !news.length) return;
-
-    const onScroll = () => {
-      if (rafRef.current) cancelAnimationFrame(rafRef.current);
-      rafRef.current = requestAnimationFrame(() => {
-        const vh = window.innerHeight;
-        const idx = Math.round(el.scrollTop / vh);
-        setActiveIdx(Math.max(0, Math.min(news.length - 1, idx)));
-      });
-    };
-
-    el.addEventListener('scroll', onScroll, { passive: true });
-    return () => {
-      el.removeEventListener('scroll', onScroll);
-      if (rafRef.current) cancelAnimationFrame(rafRef.current);
-    };
-  }, [news.length]);
-
-  /* ── Disable body scroll while on this page ── */
   useEffect(() => {
     const prev = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
     return () => { document.body.style.overflow = prev; };
   }, []);
+
+  const paginate = (newDirection) => {
+    if (activeIdx + newDirection >= 0 && activeIdx + newDirection < news.length) {
+      setActiveIdx(activeIdx + newDirection);
+    }
+  };
+
+  const wheelTimeout = useRef(null);
+  const handleWheel = (e) => {
+    if (wheelTimeout.current) return;
+    if (e.deltaY > 50) {
+      paginate(1);
+      wheelTimeout.current = setTimeout(() => { wheelTimeout.current = null }, 800);
+    } else if (e.deltaY < -50) {
+      paginate(-1);
+      wheelTimeout.current = setTimeout(() => { wheelTimeout.current = null }, 800);
+    }
+  };
 
   return (
     <>
@@ -267,7 +281,6 @@ export default function Shorts({ type = 'news' }) {
         <title>{isTrending ? 'Trending' : 'Latest News'} — Shabdham TV</title>
       </Helmet>
 
-      {/* Keyframe for shimmer skeleton */}
       <style>{`
         @keyframes shimmer {
           0%   { background-position: 200% 0; }
@@ -275,7 +288,6 @@ export default function Shorts({ type = 'news' }) {
         }
       `}</style>
 
-      {/* ── Loading ── */}
       {loading && (
         <div style={{
           position: 'fixed', inset: 0, zIndex: 300,
@@ -289,13 +301,10 @@ export default function Shorts({ type = 'news' }) {
             border: '3px solid #1e293b', borderTopColor: '#b00020',
             animation: 'spin 0.75s linear infinite',
           }} />
-          <p style={{ color: '#64748b', fontSize: 14, fontWeight: 600 }}>
-            లోడ్ అవుతోంది...
-          </p>
+          <p style={{ color: '#64748b', fontSize: 14, fontWeight: 600 }}>లోడ్ అవుతోంది...</p>
         </div>
       )}
 
-      {/* ── Empty ── */}
       {!loading && !news.length && (
         <div style={{
           position: 'fixed', inset: 0, zIndex: 300,
@@ -313,51 +322,33 @@ export default function Shorts({ type = 'news' }) {
         </div>
       )}
 
-      {/* ── Snap scroll container ── */}
       {!!news.length && (
         <div
-          ref={scrollRef}
           style={{
             position: 'fixed',
             inset: 0,
-            overflowY: 'scroll',
-            /* CSS Scroll Snap — this is what makes each card snap to full-screen */
-            scrollSnapType: 'y mandatory',
-            WebkitOverflowScrolling: 'touch',   // smooth on older iOS
-            /* hide the scrollbar */
-            scrollbarWidth: 'none',
-            msOverflowStyle: 'none',
+            overflow: 'hidden',
+            background: '#000',
+            touchAction: 'none',
+            perspective: 1200,
           }}
         >
-          <style>{`
-            .snap-scroll-hide::-webkit-scrollbar { display: none; }
-          `}</style>
-
-          {news.map((article, i) => (
-            <div
-              key={article.id || i}
-              style={{
-                /* Each slide occupies exactly one full screen */
-                height: '100vh',
-                /* Snap this element to the top of the scroll container */
-                scrollSnapAlign: 'start',
-                /* Prevent the browser skipping to next slide on fast swipe */
-                scrollSnapStop: 'always',
-                overflow: 'hidden',
-                position: 'relative',
-              }}
-            >
-              <NewsCard
-                article={article}
-                isTrending={isTrending}
-                liked={!!liked[article.id]}
-                bookmarked={!!saved[article.id]}
-                onLike={() => setLiked(p => ({ ...p, [article.id]: !p[article.id] }))}
-                onBookmark={() => setSaved(p => ({ ...p, [article.id]: !p[article.id] }))}
-                onShare={() => setShareModal({ open: true, article })}
-              />
-            </div>
-          ))}
+          {/* A unique key forces the InteractiveCard to unmount and remount when activeIdx changes, 
+              giving the new card a fresh useMotionValue(0) */}
+          <InteractiveCard
+            key={activeIdx}
+            article={news[activeIdx]}
+            prevCard={activeIdx > 0 ? news[activeIdx - 1] : null}
+            nextCard={activeIdx < news.length - 1 ? news[activeIdx + 1] : null}
+            onPaginate={paginate}
+            isTrending={isTrending}
+            liked={!!liked[news[activeIdx]?.id]}
+            bookmarked={!!saved[news[activeIdx]?.id]}
+            onLike={() => setLiked(p => ({ ...p, [news[activeIdx].id]: !p[news[activeIdx].id] }))}
+            onBookmark={() => setSaved(p => ({ ...p, [news[activeIdx].id]: !p[news[activeIdx].id] }))}
+            onShare={() => setShareModal({ open: true, article: news[activeIdx] })}
+            handleWheel={handleWheel}
+          />
         </div>
       )}
 
@@ -435,10 +426,10 @@ export default function Shorts({ type = 'news' }) {
       <ShareModal
         isOpen={shareModal.open}
         onClose={() => setShareModal({ open: false, article: null })}
-        url={shareModal.article
-          ? `${window.location.origin}/article/${shareModal.article.slug}`
+        url={news[activeIdx]
+          ? `${window.location.origin}/article/${news[activeIdx].slug}`
           : ''}
-        title={shareModal.article?.title || ''}
+        title={news[activeIdx]?.title || ''}
       />
     </>
   );

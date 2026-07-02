@@ -7,20 +7,25 @@ import { Link } from 'react-router-dom';
 
 const CategoryGridCard = ({ article }) => {
   return (
-    <div className="bg-white rounded-xl overflow-hidden border border-gray-200 shadow-sm hover:shadow-md transition-shadow group flex flex-col">
-      <Link to={`/article/${article.slug}`} className="relative h-[220px] overflow-hidden block m-2 rounded-t-xl">
+    <div className="bg-white rounded-xl overflow-hidden border border-gray-200 shadow-sm hover:shadow-md transition-shadow group flex flex-row md:flex-col h-[100px] sm:h-[120px] md:h-auto">
+      <Link to={`/article/${article.slug}`} className="relative w-1/3 md:w-auto md:h-[220px] overflow-hidden block md:m-2 md:rounded-t-xl shrink-0">
         <img 
           src={article.image} 
           alt={article.title} 
           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
         />
       </Link>
-      <div className="p-4 flex flex-col flex-grow">
-        <h3 className="font-bold text-[16px] leading-snug group-hover:text-[#cc0000] transition-colors line-clamp-2 mb-6 mt-1">
+      <div className="p-3 md:p-4 flex flex-col flex-grow overflow-hidden justify-center md:justify-start">
+        <h3 className="font-bold text-[14px] md:text-[16px] leading-snug group-hover:text-[#cc0000] transition-colors line-clamp-1 md:line-clamp-2 mb-1 md:mb-6 md:mt-1">
           <Link to={`/article/${article.slug}`}>{article.title}</Link>
         </h3>
         
-        <div className="mt-auto">
+        {/* Excerpt/Description (visible on mobile as one line) */}
+        <p className="text-gray-500 text-[12px] line-clamp-1 md:hidden">
+          {article.excerpt || article.title}
+        </p>
+        
+        <div className="mt-auto hidden md:block">
           <div className="w-full h-[1px] bg-gray-200 mb-3"></div>
           <div className="flex justify-end items-center text-gray-500 text-sm font-semibold">
             <button className="flex items-center hover:text-[#cc0000] transition-colors">
