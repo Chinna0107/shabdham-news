@@ -2,6 +2,7 @@ import { Routes, Route, Outlet } from 'react-router-dom';
 import Header from './components/Header/Header';
 import Footer from './components/Footer/Footer';
 import MobileBottomNav from './components/MobileBottomNav';
+import { FaWhatsapp } from 'react-icons/fa';
 
 // Pages
 import Home from './pages/Home';
@@ -31,6 +32,16 @@ const MainLayout = () => {
       </main>
       <Footer />
       <MobileBottomNav />
+      
+      {/* Floating WhatsApp Button (Mobile Only) */}
+      <a
+        href="#"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="md:hidden fixed bottom-[80px] right-4 bg-[#25D366] text-white p-3 rounded-full shadow-lg z-40 hover:bg-[#20b858] transition-colors flex items-center justify-center"
+      >
+        <FaWhatsapp size={26} />
+      </a>
     </div>
   );
 };

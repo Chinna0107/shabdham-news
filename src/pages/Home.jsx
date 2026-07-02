@@ -84,6 +84,21 @@ const Home = () => {
       </Helmet>
 
       <div className="w-full px-4 lg:px-8 xl:px-12 pt-6 bg-brand-gray min-h-screen">
+        
+        {/* Mobile Categories Scroll */}
+        <div className="md:hidden w-full overflow-x-auto hide-scrollbar mb-6 -mx-4 px-4 pb-2">
+          <div className="flex items-center gap-3 w-[max-content]">
+            {CATEGORY_BLOCKS.map((cat, idx) => (
+              <Link
+                key={idx}
+                to={cat.slug ? `/category/${cat.slug}` : '/'}
+                className="bg-white border border-gray-200 shadow-sm rounded-full px-4 py-1.5 text-[13px] font-bold text-gray-700 hover:text-brand-red hover:border-brand-red transition-colors whitespace-nowrap"
+              >
+                {cat.title}
+              </Link>
+            ))}
+          </div>
+        </div>
 
         {/* HERO */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-10">

@@ -6,7 +6,7 @@ import ShareModal from '../components/ShareModal';
 import MobileBottomNav from '../components/MobileBottomNav';
 import {
   FaArrowLeft, FaFire, FaHeart, FaRegHeart,
-  FaBookmark, FaRegBookmark, FaShareAlt, FaClock,
+  FaBookmark, FaRegBookmark, FaShareAlt, FaClock, FaWhatsapp
 } from 'react-icons/fa';
 
 /* ─────────────────────────────────────────────────────────────
@@ -146,7 +146,7 @@ function NewsCard({ article, isTrending, liked, bookmarked, onLike, onBookmark, 
         background: '#0f172a',
         borderTop: '1px solid rgba(255,255,255,0.05)',
       }}>
-        <Link
+        {/* <Link
           to={`/article/${article.slug}`}
           style={{
             background: '#b00020', color: '#fff',
@@ -157,8 +157,8 @@ function NewsCard({ article, isTrending, liked, bookmarked, onLike, onBookmark, 
           }}
         >
           మరింత చదవండి →
-        </Link>
-
+        </Link> */}
+{/* 
         <div style={{ display: 'flex', gap: 2 }}>
           {[
             {
@@ -195,7 +195,7 @@ function NewsCard({ article, isTrending, liked, bookmarked, onLike, onBookmark, 
               <span style={{ fontSize: 8, color: '#475569', fontWeight: 700 }}>{label}</span>
             </button>
           ))}
-        </div>
+        </div> */}
       </div>
     </div>
   );
@@ -412,6 +412,16 @@ export default function Shorts({ type = 'news' }) {
             })}
         </div>
       )}
+
+      {/* Floating WhatsApp Button (Mobile Only) */}
+      <a
+        href="#"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="md:hidden fixed bottom-[80px] right-4 bg-[#25D366] text-white p-3 rounded-full shadow-lg z-40 hover:bg-[#20b858] transition-colors flex items-center justify-center"
+      >
+        <FaWhatsapp size={26} />
+      </a>
 
       {/* ── Bottom nav ── */}
       <MobileBottomNav
