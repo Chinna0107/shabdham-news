@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { cn } from '../../utils/cn';
 import TopBar from './TopBar';
 import Navbar from './Navbar';
 import Ticker from './Ticker';
@@ -24,8 +25,26 @@ const Header = () => {
     }
   };
 
+  const [isMobileSticky, setIsMobileSticky] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.innerWidth < 768) {
+        setIsMobileSticky(window.scrollY > 100);
+      } else {
+        setIsMobileSticky(false);
+      }
+    };
+    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('resize', handleScroll);
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('resize', handleScroll);
+    };
+  }, []);
+
   return (
-    <header className="w-full flex flex-col font-sans bg-white shadow-sm">
+    <header className="w-full flex flex-col font-sans bg-white shadow-sm relative">
       
       {/* Top Whatsapp Banner */}
       {showBanner && (
@@ -48,7 +67,10 @@ const Header = () => {
       <TopBar />
       
       {/* Logo and Search Section */}
-      <div className="w-full px-4 lg:px-8 xl:px-12 py-3 md:py-4 flex justify-between items-center bg-white sticky top-0 z-[45] md:relative shadow-sm md:shadow-none">
+      <div className={cn(
+        "w-full px-4 lg:px-8 xl:px-12 py-3 md:py-4 flex justify-between items-center bg-white transition-all duration-300",
+        isMobileSticky ? "fixed top-0 left-0 z-50 shadow-md animate-slideDown" : "relative"
+      )}>
         
         {/* Mobile Hamburger (Left) */}
         <button 
