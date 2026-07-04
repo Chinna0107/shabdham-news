@@ -8,6 +8,7 @@ import { fetchEpapers, fetchEpaperByDate } from '../services/api';
 import { pdfjs, Document, Page } from 'react-pdf';
 import 'react-pdf/dist/Page/AnnotationLayer.css';
 import 'react-pdf/dist/Page/TextLayer.css';
+import { TransformWrapper, TransformComponent } from 'react-zoom-pan-pinch';
 
 pdfjs.GlobalWorkerOptions.workerSrc = new URL(
   'pdfjs-dist/build/pdf.worker.min.mjs',
@@ -33,6 +34,12 @@ const Epaper = () => {
   const [clipStart, setClipStart] = useState(null);
   const [clipEnd, setClipEnd] = useState(null);
   const [clippedImage, setClippedImage] = useState(null);
+  
+  // HD Reading View State
+  const [zoomedReadingOpen, setZoomedReadingOpen] = useState(false);
+  const [zoomTargetPos, setZoomTargetPos] = useState({ x: 0, y: 0 });
+  const transformComponentRef = useRef(null);
+  
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
   
   const containerRef = useRef(null);
@@ -463,11 +470,23 @@ const Epaper = () => {
             >
               <div 
                 ref={containerRef}
-                className={`relative shadow-2xl transition-transform duration-200 origin-top bg-white ${isClippingMode ? 'cursor-crosshair' : ''}`}
+                className={`relative shadow-2xl transition-transform duration-200 origin-top bg-white ${isClippingMode ? 'cursor-crosshair' : 'cursor-zoom-in'}`}
                 onPointerDown={handlePointerDown}
                 onPointerMove={handlePointerMove}
                 onPointerUp={handlePointerUp}
                 onPointerLeave={handlePointerUp}
+                onClick={(e) => {
+                  if (isClippingMode || !containerRef.current) return;
+                  const rect = containerRef.current.getBoundingClientRect();
+                  const clickX = e.clientX - rect.left;
+                  const clickY = e.clientY - rect.top;
+                  
+                  setZoomTargetPos({
+                    x: clickX / rect.width,
+                    y: clickY / rect.height
+                  });
+                  setZoomedReadingOpen(true);
+                }}
                 style={{ touchAction: isClippingMode ? 'none' : 'auto' }} // Prevent scrolling while clipping on mobile
               >
                 <Page 
@@ -561,6 +580,73 @@ const Epaper = () => {
               >
                 <FaDownload className="mr-2" /> Download
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* HD Reading View Modal */}
+      {zoomedReadingOpen && (
+        <div className="fixed inset-0 z-[300] bg-black/80 flex items-center justify-center p-4 font-sans animate-fade-in">
+          <div className="bg-white rounded-2xl w-full max-w-3xl h-[85vh] md:h-[80vh] overflow-hidden flex flex-col shadow-2xl relative">
+            {/* Header */}
+            <div className="h-[60px] bg-white border-b border-gray-200 shadow-sm flex items-center justify-between px-4 shrink-0 relative z-20">
+              <h3 className="font-bold text-lg flex items-center text-gray-800"><FaSearchPlus className="mr-2 text-brand-red" /> Reading View</h3>
+              <button onClick={() => setZoomedReadingOpen(false)} className="text-gray-400 hover:text-gray-700 transition-colors p-2 rounded-full hover:bg-gray-100">
+                <FaTimes size={20} />
+              </button>
+            </div>
+            
+            {/* HD Document Container */}
+            <div className="flex-1 overflow-hidden relative bg-gray-100 w-full h-full">
+              <TransformWrapper
+                ref={transformComponentRef}
+                initialScale={1}
+                minScale={0.5}
+                maxScale={5}
+                limitToBounds={false}
+                centerOnInit={true}
+                wheel={{ step: 0.1 }}
+                panning={{ disabled: false, velocityDisabled: false }}
+                pinch={{ disabled: false }}
+                doubleClick={{ disabled: true }}
+                style={{ width: '100%', height: '100%' }}
+              >
+                <TransformComponent wrapperStyle={{ width: '100%', height: '100%' }} contentStyle={{ width: '100%', height: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                  <Document
+                    file={todayEdition?.pdf_url}
+                    loading={<div className="text-gray-400 font-bold w-full text-center mt-20">Loading High-Res Page...</div>}
+                    error={<div className="text-red-500 font-bold w-full text-center mt-20">Failed to load High-Res Page.</div>}
+                  >
+                    <Page 
+                      pageNumber={pageNumber} 
+                      scale={windowWidth < 768 ? 2.5 : 3.0} 
+                      renderTextLayer={false} 
+                      renderAnnotationLayer={false}
+                      className="shadow-md"
+                      loading={<div className="text-gray-400 w-[300px] h-[400px] flex items-center justify-center mx-auto">Rendering HD text...</div>}
+                      onRenderSuccess={() => {
+                        if (transformComponentRef.current) {
+                          const { setTransform, instance } = transformComponentRef.current;
+                          const wrapper = instance.wrapperComponent;
+                          const pageEl = wrapper?.querySelector('.react-pdf__Page');
+                          
+                          if (pageEl && wrapper) {
+                            const containerW = wrapper.clientWidth;
+                            const containerH = wrapper.clientHeight;
+                            // Calculate translation to center the clicked area
+                            const targetX = -((pageEl.clientWidth * zoomTargetPos.x) - (containerW / 2));
+                            const targetY = -((pageEl.clientHeight * zoomTargetPos.y) - (containerH / 2));
+                            
+                            // Apply transform instantly (0ms)
+                            setTransform(targetX, targetY, 1, 0);
+                          }
+                        }
+                      }}
+                    />
+                  </Document>
+                </TransformComponent>
+              </TransformWrapper>
             </div>
           </div>
         </div>
