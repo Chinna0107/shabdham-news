@@ -1,5 +1,5 @@
 import React from 'react';
-import { NavLink, Link } from 'react-router-dom';
+import { NavLink, Link, useNavigate } from 'react-router-dom';
 import { 
   FaThLarge, 
   FaRegNewspaper, 
@@ -9,7 +9,8 @@ import {
   FaCog, 
   FaRegFileAlt,
   FaSignOutAlt,
-  FaBullhorn
+  FaBullhorn,
+  FaUser
 } from 'react-icons/fa';
 import logo from "../Admin/logo.jpeg"
 
@@ -23,9 +24,27 @@ const navItems = [
   { name: 'CMS Pages', path: '/admin/cms-pages', icon: FaCog },
   { name: 'E-Paper', path: '/admin/epaper', icon: FaRegFileAlt },
   { name: 'Ads', path: '/admin/ads', icon: FaBullhorn },
+  { name: 'Profile', path: '/admin/profile', icon: FaUser },
 ];
 
 const AdminSidebar = ({ onClose }) => {
+  const navigate = useNavigate();
+  const [user, setUser] = React.useState({ name: 'Super Admin', email: 'admin@balagamtv.com' });
+
+  React.useEffect(() => {
+    const storedUser = localStorage.getItem('admin_user');
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+    }
+  }, []);
+
+  const handleLogout = (e) => {
+    e.preventDefault();
+    localStorage.removeItem('admin_token');
+    localStorage.removeItem('admin_user');
+    navigate('/login');
+  };
+
   return (
     <div className="w-[260px] h-full bg-[#1e293b] text-gray-300 flex flex-col">
       {/* Logo Area */}
@@ -71,20 +90,20 @@ const AdminSidebar = ({ onClose }) => {
       <div className="p-4 border-t border-gray-700/50">
         <div className="bg-slate-800/50 rounded-xl p-3 flex items-center mb-4 cursor-pointer hover:bg-slate-800 transition-colors border border-slate-700">
           <div className="w-10 h-10 rounded-full bg-[#f15a24] text-white flex items-center justify-center font-bold text-lg mr-3 shrink-0">
-            S
+            {user.name ? user.name.substring(0, 1).toUpperCase() : 'A'}
           </div>
           <div className="flex flex-col overflow-hidden">
-            <span className="text-white font-bold text-sm truncate">Super Admin</span>
-            <span className="text-xs text-gray-400 truncate">admin@balagamtv.com</span>
+            <span className="text-white font-bold text-sm truncate">{user.name}</span>
+            <span className="text-xs text-gray-400 truncate">{user.email}</span>
           </div>
         </div>
         
-        <Link 
-          to="/"
-          className="flex items-center justify-center px-4 py-2 text-sm text-gray-400 hover:text-white transition-colors"
+        <button 
+          onClick={handleLogout}
+          className="w-full flex items-center justify-center px-4 py-2 text-sm text-gray-400 hover:text-white transition-colors"
         >
           <FaSignOutAlt className="mr-2" size={14} /> Logout
-        </Link>
+        </button>
       </div>
     </div>
   );

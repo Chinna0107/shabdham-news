@@ -5,7 +5,7 @@ const api = axios.create({
 });
 
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('adminToken') || localStorage.getItem('admin_token');
+  const token = localStorage.getItem('admin_token') || localStorage.getItem('employee_token');
   // Check for string "undefined" or "null" which sometimes happens with local storage
   if (token && token !== 'undefined' && token !== 'null') {
     config.headers.Authorization = `Bearer ${token}`;
@@ -18,10 +18,10 @@ api.interceptors.response.use(
   (error) => {
     if (error.response && error.response.status === 401) {
       // Clear all tokens if unauthorized
-      localStorage.removeItem('adminToken');
       localStorage.removeItem('admin_token');
-      localStorage.removeItem('adminUser');
       localStorage.removeItem('admin_user');
+      localStorage.removeItem('employee_token');
+      localStorage.removeItem('employee_user');
       // Optional: automatically reload to force the ProtectedRoute to trigger
       window.location.href = '/login';
     }
@@ -116,6 +116,18 @@ export const adminLogin = (email, password) =>
 
 export const adminMe = (token) =>
   api.get('/auth/me', { headers: { Authorization: `Bearer ${token}` } }).then(r => r.data);
+
+export const resetPassword = (oldPassword, newPassword) =>
+  api.post('/auth/reset-password', { oldPassword, newPassword }).then(r => r.data);
+
+export const verifyPassword = (password) =>
+  api.post('/auth/verify-password', { password }).then(r => r.data);
+
+export const forgotPassword = (email) =>
+  api.post('/auth/forgot-password', { email }).then(r => r.data);
+
+export const resetPasswordWithCode = (email, code, newPassword) =>
+  api.post('/auth/reset-password-with-code', { email, code, newPassword }).then(r => r.data);
 
 // ── Public: E-Paper ──────────────────────────────────────
 export const fetchEpapers = () =>

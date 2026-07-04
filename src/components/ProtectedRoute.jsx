@@ -2,10 +2,28 @@ import React from 'react';
 import { Navigate, Outlet } from 'react-router-dom';
 
 const ProtectedRoute = ({ allowedRoles }) => {
-  const token = localStorage.getItem('adminToken') || localStorage.getItem('admin_token');
-  const userStr = localStorage.getItem('adminUser') || localStorage.getItem('admin_user');
+  const isEmployeeRoute = allowedRoles && allowedRoles.includes('employee');
+  const isAdminRoute = allowedRoles && (allowedRoles.includes('admin') || allowedRoles.includes('superadmin'));
+  
+  let token = null;
+  let userStr = null;
+
+  if (isEmployeeRoute) {
+    token = localStorage.getItem('employee_token');
+    userStr = localStorage.getItem('employee_user');
+  } else if (isAdminRoute) {
+    token = localStorage.getItem('admin_token');
+    userStr = localStorage.getItem('admin_user');
+  } else {
+    // Fallback if no specific role is required
+    token = localStorage.getItem('admin_token') || localStorage.getItem('employee_token');
+    userStr = localStorage.getItem('admin_user') || localStorage.getItem('employee_user');
+  }
   
   if (!token || !userStr) {
+    if (isEmployeeRoute) {
+      return <Navigate to="/employee-login" replace />;
+    }
     return <Navigate to="/login" replace />;
   }
 
@@ -28,11 +46,15 @@ const ProtectedRoute = ({ allowedRoles }) => {
     return <Outlet />;
   } catch (err) {
     // If json parse fails
-    localStorage.removeItem('adminToken');
-    localStorage.removeItem('admin_token');
-    localStorage.removeItem('adminUser');
-    localStorage.removeItem('admin_user');
-    return <Navigate to="/login" replace />;
+    if (isEmployeeRoute) {
+      localStorage.removeItem('employee_token');
+      localStorage.removeItem('employee_user');
+      return <Navigate to="/employee-login" replace />;
+    } else {
+      localStorage.removeItem('admin_token');
+      localStorage.removeItem('admin_user');
+      return <Navigate to="/login" replace />;
+    }
   }
 };
 

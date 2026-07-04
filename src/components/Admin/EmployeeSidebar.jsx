@@ -4,12 +4,14 @@ import {
   FaThLarge, 
   FaRegNewspaper, 
   FaSignOutAlt,
+  FaUser,
 } from 'react-icons/fa';
 import logo from "../Admin/logo.jpeg";
 
 const navItems = [
   { name: 'Dashboard', path: '/employee/dashboard', icon: FaThLarge },
   { name: 'My News', path: '/employee/news', icon: FaRegNewspaper },
+  { name: 'Profile', path: '/employee/profile', icon: FaUser },
 ];
 
 const EmployeeSidebar = ({ onClose }) => {
@@ -17,7 +19,7 @@ const EmployeeSidebar = ({ onClose }) => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const storedUser = localStorage.getItem('adminUser');
+    const storedUser = localStorage.getItem('employee_user');
     if (storedUser) {
       setUser(JSON.parse(storedUser));
     }
@@ -25,9 +27,9 @@ const EmployeeSidebar = ({ onClose }) => {
 
   const handleLogout = (e) => {
     e.preventDefault();
-    localStorage.removeItem('adminToken');
-    localStorage.removeItem('adminUser');
-    navigate('/login'); // or wherever login is
+    localStorage.removeItem('employee_token');
+    localStorage.removeItem('employee_user');
+    navigate('/employee-login');
   };
 
   return (

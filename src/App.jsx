@@ -22,6 +22,7 @@ import EmployeeNewsRequests from './pages/admin/EmployeeNewsRequests';
 import CmsPages from './pages/admin/CmsPages';
 import EPaperAdmin from './pages/admin/EPaperAdmin';
 import AdsManagement from './pages/admin/AdsManagement';
+import AdminProfile from './pages/admin/AdminProfile';
 import { About, Contact, Privacy, Advertise, Terms } from './pages/StaticPages';
 
 // Employee Portal Pages
@@ -29,6 +30,7 @@ import EmployeeLogin from './pages/employee/EmployeeLogin';
 import EmployeeLayout from './layouts/EmployeeLayout';
 import EmployeeDashboard from './pages/employee/EmployeeDashboard';
 import EmployeeNewsManagement from './pages/employee/EmployeeNewsManagement';
+import EmployeeProfile from './pages/employee/EmployeeProfile';
 
 import ProtectedRoute from './components/ProtectedRoute';
 
@@ -94,6 +96,7 @@ function App() {
           <Route path="cms-pages" element={<CmsPages />} />
           <Route path="epaper" element={<EPaperAdmin />} />
           <Route path="ads" element={<AdsManagement />} />
+          <Route path="profile" element={<AdminProfile />} />
         </Route>
       </Route>
 
@@ -103,6 +106,7 @@ function App() {
           <Route index element={<EmployeeDashboard />} />
           <Route path="dashboard" element={<EmployeeDashboard />} />
           <Route path="news" element={<EmployeeNewsManagement />} />
+          <Route path="profile" element={<EmployeeProfile />} />
         </Route>
       </Route>
     </Routes>
