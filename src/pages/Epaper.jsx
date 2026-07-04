@@ -114,26 +114,52 @@ const Epaper = () => {
     setScale(prev => Math.min(Math.max(0.5, prev + delta), 3.0));
   };
 
+  const getClientPos = (e) => {
+    if (e.touches && e.touches.length > 0) {
+      return { clientX: e.touches[0].clientX, clientY: e.touches[0].clientY };
+    }
+    if (e.changedTouches && e.changedTouches.length > 0) {
+      return { clientX: e.changedTouches[0].clientX, clientY: e.changedTouches[0].clientY };
+    }
+    return { clientX: e.clientX, clientY: e.clientY };
+  };
+
   // Clipping Logic
   const handlePointerDown = (e) => {
     if (!isClippingMode || !containerRef.current) return;
-    e.target.setPointerCapture(e.pointerId);
+    
+    try {
+      if (e.pointerId && e.target.setPointerCapture) {
+        e.target.setPointerCapture(e.pointerId);
+      }
+    } catch (err) {
+      console.warn('Pointer capture failed:', err);
+    }
+    
+    const { clientX, clientY } = getClientPos(e);
     const rect = containerRef.current.getBoundingClientRect();
     setIsDragging(true);
-    setClipStart({ x: e.clientX - rect.left, y: e.clientY - rect.top });
-    setClipEnd({ x: e.clientX - rect.left, y: e.clientY - rect.top });
+    setClipStart({ x: clientX - rect.left, y: clientY - rect.top });
+    setClipEnd({ x: clientX - rect.left, y: clientY - rect.top });
   };
 
   const handlePointerMove = (e) => {
     if (!isDragging || !isClippingMode || !containerRef.current) return;
+    
+    const { clientX, clientY } = getClientPos(e);
     const rect = containerRef.current.getBoundingClientRect();
-    setClipEnd({ x: e.clientX - rect.left, y: e.clientY - rect.top });
+    setClipEnd({ x: clientX - rect.left, y: clientY - rect.top });
   };
 
   const handlePointerUp = (e) => {
     if (!isClippingMode || !containerRef.current) return;
-    if (e.target.hasPointerCapture && e.target.hasPointerCapture(e.pointerId)) {
-      e.target.releasePointerCapture(e.pointerId);
+    
+    try {
+      if (e.pointerId && e.target.hasPointerCapture && e.target.hasPointerCapture(e.pointerId)) {
+        e.target.releasePointerCapture(e.pointerId);
+      }
+    } catch (err) {
+      console.warn('Pointer release failed:', err);
     }
     
     if (!isDragging) return;
@@ -150,13 +176,13 @@ const Epaper = () => {
 
       if (width > 20 && height > 20) { // Ignore tiny accidental clicks
         captureClip(x1, y1, width, height);
+        setIsClippingMode(false); // Turn off mode after a successful clip
       }
     }
     
     // Reset selection box but keep modal open
     setClipStart(null);
     setClipEnd(null);
-    setIsClippingMode(false); // Turn off mode after a successful clip
   };
 
   const captureClip = (x, y, width, height) => {
@@ -421,10 +447,10 @@ const Epaper = () => {
               <button 
                 onClick={() => changeScale(-0.25)} 
                 disabled={scale <= 0.5}
-                className="p-2 text-gray-600 hover:text-brand-red hover:bg-red-50 rounded-lg transition-colors disabled:opacity-30"
+                className="p-3 md:p-2 text-gray-600 hover:text-brand-red hover:bg-red-50 rounded-lg transition-colors disabled:opacity-30"
                 title="Zoom Out"
               >
-                <FaSearchMinus size={18} />
+                <FaSearchMinus size={18} className="pointer-events-none" />
               </button>
               
               <span className="text-xs font-bold text-gray-500 w-[40px] text-center">{Math.round(scale * 100)}%</span>
@@ -432,20 +458,20 @@ const Epaper = () => {
               <button 
                 onClick={() => changeScale(0.25)} 
                 disabled={scale >= 3.0}
-                className="p-2 text-gray-600 hover:text-brand-red hover:bg-red-50 rounded-lg transition-colors disabled:opacity-30"
+                className="p-3 md:p-2 text-gray-600 hover:text-brand-red hover:bg-red-50 rounded-lg transition-colors disabled:opacity-30"
                 title="Zoom In"
               >
-                <FaSearchPlus size={18} />
+                <FaSearchPlus size={18} className="pointer-events-none" />
               </button>
               
               <div className="w-px h-6 bg-gray-300 mx-1 md:mx-2"></div>
               
               <button 
                 onClick={() => setIsClippingMode(!isClippingMode)}
-                className={`p-2 rounded-lg transition-all ${isClippingMode ? 'bg-brand-red text-white shadow-inner' : 'text-gray-600 hover:text-brand-red hover:bg-red-50'}`}
+                className={`p-3 md:p-2 rounded-lg transition-all ${isClippingMode ? 'bg-brand-red text-white shadow-inner' : 'text-gray-600 hover:text-brand-red hover:bg-red-50'}`}
                 title="Screenshot Clip Tool"
               >
-                <FaCut size={18} />
+                <FaCut size={18} className="pointer-events-none" />
               </button>
             </div>
 
@@ -494,6 +520,10 @@ const Epaper = () => {
                 onPointerUp={handlePointerUp}
                 onPointerCancel={handlePointerUp}
                 onPointerLeave={handlePointerUp}
+                onTouchStart={handlePointerDown}
+                onTouchMove={handlePointerMove}
+                onTouchEnd={handlePointerUp}
+                onTouchCancel={handlePointerUp}
                 onClick={(e) => {
                   if (isClippingMode || !containerRef.current) return;
                   const rect = containerRef.current.getBoundingClientRect();
