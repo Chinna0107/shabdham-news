@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { 
   FaDownload, FaWhatsapp, FaCalendarAlt, FaSearch, FaTimes, 
@@ -228,6 +228,17 @@ const Epaper = () => {
     setIsClippingMode(false);
     setClippedImage(null);
   };
+
+  const memoizedPage = useMemo(() => (
+    <Page 
+      pageNumber={pageNumber} 
+      scale={scale}
+      width={windowWidth < 768 ? windowWidth - 32 : Math.min(windowWidth - 64, 1000)}
+      renderTextLayer={false} 
+      renderAnnotationLayer={false}
+      loading={<div className="w-[300px] h-[400px] flex items-center justify-center text-gray-400">లోడ్ అవుతోంది...</div>}
+    />
+  ), [pageNumber, scale, windowWidth]);
 
   if (loading) {
     return (
@@ -472,8 +483,8 @@ const Epaper = () => {
             <Document
               file={todayEdition.pdf_url}
               onLoadSuccess={onDocumentLoadSuccess}
-              loading={<div className="text-gray-500 font-bold mt-20">Loading Edition...</div>}
-              error={<div className="text-red-500 font-bold mt-20">Failed to load Edition.</div>}
+              loading={<div className="text-gray-500 font-bold mt-20">లోడ్ అవుతోంది...</div>}
+              error={<div className="text-red-500 font-bold mt-20">లోడ్ చేయడంలో విఫలమైంది.</div>}
             >
               <div 
                 ref={containerRef}
@@ -503,14 +514,7 @@ const Epaper = () => {
                 }}
                 style={{ touchAction: isClippingMode ? 'none' : 'auto' }} // Prevent scrolling while clipping on mobile
               >
-                <Page 
-                  pageNumber={pageNumber} 
-                  scale={scale}
-                  width={windowWidth < 768 ? windowWidth - 32 : Math.min(windowWidth - 64, 1000)}
-                  renderTextLayer={false} 
-                  renderAnnotationLayer={false}
-                  loading={<div className="w-[300px] h-[400px] flex items-center justify-center text-gray-400">Loading Page...</div>}
-                />
+                {memoizedPage}
                 
                 {/* Visual Clipping Box */}
                 {isClippingMode && isDragging && clipStart && clipEnd && (
