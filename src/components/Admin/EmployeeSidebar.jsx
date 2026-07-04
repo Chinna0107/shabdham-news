@@ -1,31 +1,35 @@
-import React from 'react';
-import { NavLink, Link } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { NavLink, Link, useNavigate } from 'react-router-dom';
 import { 
   FaThLarge, 
   FaRegNewspaper, 
-  FaBolt, 
-  FaMapMarkerAlt, 
-  FaUserFriends, 
-  FaCog, 
-  FaRegFileAlt,
   FaSignOutAlt,
-  FaBullhorn
 } from 'react-icons/fa';
-import logo from "../Admin/logo.jpeg"
+import logo from "../Admin/logo.jpeg";
 
 const navItems = [
-  { name: 'Dashboard', path: '/admin/dashboard', icon: FaThLarge },
-  { name: 'News Management', path: '/admin/news', icon: FaRegNewspaper },
-  { name: 'Employee News Requests', path: '/admin/employee-news', icon: FaUserFriends },
-  { name: 'Breaking News', path: '/admin/breaking-news', icon: FaBolt },
-  { name: 'Categories', path: '/admin/categories', icon: FaMapMarkerAlt },
-  { name: 'Employees', path: '/admin/employees', icon: FaUserFriends },
-  { name: 'CMS Pages', path: '/admin/cms-pages', icon: FaCog },
-  { name: 'E-Paper', path: '/admin/epaper', icon: FaRegFileAlt },
-  { name: 'Ads', path: '/admin/ads', icon: FaBullhorn },
+  { name: 'Dashboard', path: '/employee/dashboard', icon: FaThLarge },
+  { name: 'My News', path: '/employee/news', icon: FaRegNewspaper },
 ];
 
-const AdminSidebar = ({ onClose }) => {
+const EmployeeSidebar = ({ onClose }) => {
+  const [user, setUser] = useState({ name: 'Employee', email: '' });
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const storedUser = localStorage.getItem('adminUser');
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+    }
+  }, []);
+
+  const handleLogout = (e) => {
+    e.preventDefault();
+    localStorage.removeItem('adminToken');
+    localStorage.removeItem('adminUser');
+    navigate('/login'); // or wherever login is
+  };
+
   return (
     <div className="w-[260px] h-full bg-[#1e293b] text-gray-300 flex flex-col">
       {/* Logo Area */}
@@ -33,12 +37,12 @@ const AdminSidebar = ({ onClose }) => {
         <div className="flex items-center">
           <img 
             src={logo} 
-            alt="Balagam TV" 
+            alt="Logo" 
             className="h-10 bg-white p-1 rounded object-contain mr-3"
           />
           <div className="flex flex-col">
             <span className="text-white font-bold text-sm tracking-widest leading-tight">Shabdham TV</span>
-            <span className="text-[10px] text-gray-400 font-semibold tracking-[0.2em]">ADMIN PANEL</span>
+            <span className="text-[10px] text-blue-400 font-semibold tracking-[0.2em]">EMPLOYEE PORTAL</span>
           </div>
         </div>
       </div>
@@ -55,7 +59,7 @@ const AdminSidebar = ({ onClose }) => {
               className={({ isActive }) => 
                 `flex items-center px-4 py-3 text-sm font-semibold rounded-xl transition-all ${
                   isActive 
-                    ? 'bg-[#c8102e] text-white shadow-lg shadow-red-900/20' 
+                    ? 'bg-blue-600 text-white shadow-lg shadow-blue-900/20' 
                     : 'hover:bg-slate-800 hover:text-white'
                 }`
               }
@@ -70,24 +74,24 @@ const AdminSidebar = ({ onClose }) => {
       {/* User Profile */}
       <div className="p-4 border-t border-gray-700/50">
         <div className="bg-slate-800/50 rounded-xl p-3 flex items-center mb-4 cursor-pointer hover:bg-slate-800 transition-colors border border-slate-700">
-          <div className="w-10 h-10 rounded-full bg-[#f15a24] text-white flex items-center justify-center font-bold text-lg mr-3 shrink-0">
-            S
+          <div className="w-10 h-10 rounded-full bg-blue-500 text-white flex items-center justify-center font-bold text-lg mr-3 shrink-0">
+            {user.name.substring(0, 2).toUpperCase()}
           </div>
           <div className="flex flex-col overflow-hidden">
-            <span className="text-white font-bold text-sm truncate">Super Admin</span>
-            <span className="text-xs text-gray-400 truncate">admin@balagamtv.com</span>
+            <span className="text-white font-bold text-sm truncate">{user.name}</span>
+            <span className="text-xs text-gray-400 truncate">{user.email}</span>
           </div>
         </div>
         
-        <Link 
-          to="/"
-          className="flex items-center justify-center px-4 py-2 text-sm text-gray-400 hover:text-white transition-colors"
+        <button 
+          onClick={handleLogout}
+          className="flex items-center justify-center w-full px-4 py-2 text-sm text-gray-400 hover:text-white transition-colors"
         >
           <FaSignOutAlt className="mr-2" size={14} /> Logout
-        </Link>
+        </button>
       </div>
     </div>
   );
 };
 
-export default AdminSidebar;
+export default EmployeeSidebar;

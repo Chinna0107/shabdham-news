@@ -40,6 +40,8 @@ const Dashboard = () => {
 
       {loading ? (
         <div className="text-gray-400 text-center py-20">Loading...</div>
+      ) : !stats ? (
+        <div className="text-red-500 text-center py-20 font-bold">Failed to load dashboard data. Please try logging out and logging back in.</div>
       ) : (
         <>
           {/* Stats */}

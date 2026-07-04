@@ -4,6 +4,31 @@ const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000/api',
 });
 
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem('adminToken') || localStorage.getItem('admin_token');
+  // Check for string "undefined" or "null" which sometimes happens with local storage
+  if (token && token !== 'undefined' && token !== 'null') {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+}, (error) => Promise.reject(error));
+
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response && error.response.status === 401) {
+      // Clear all tokens if unauthorized
+      localStorage.removeItem('adminToken');
+      localStorage.removeItem('admin_token');
+      localStorage.removeItem('adminUser');
+      localStorage.removeItem('admin_user');
+      // Optional: automatically reload to force the ProtectedRoute to trigger
+      window.location.href = '/login';
+    }
+    return Promise.reject(error);
+  }
+);
+
 // ── Public ──────────────────────────────────────────────
 export const fetchNews = (category) =>
   api.get('/news', { params: category ? { category } : {} }).then(r => r.data);
@@ -31,11 +56,20 @@ export const adminFetchNews = () =>
 export const adminFetchTrending = () =>
   api.get('/news/admin/trending').then(r => r.data);
 
+export const adminFetchPendingNews = () =>
+  api.get('/news/admin/pending').then(r => r.data);
+
+export const employeeFetchMyNews = () =>
+  api.get('/news/employee/my-news').then(r => r.data);
+
 export const adminCreateNews = (data) =>
   api.post('/news', data).then(r => r.data);
 
 export const adminUpdateNews = (id, data) =>
   api.put(`/news/${id}`, data).then(r => r.data);
+
+export const adminUpdateNewsStatus = (id, status, rejection_reason = null) =>
+  api.put(`/news/${id}/status`, { status, rejection_reason }).then(r => r.data);
 
 export const adminDeleteNews = (id) =>
   api.delete(`/news/${id}`).then(r => r.data);
@@ -62,6 +96,19 @@ export const adminUpdateBreakingNews = (id, data) =>
 
 export const adminDeleteBreakingNews = (id) =>
   api.delete(`/breaking-news/${id}`).then(r => r.data);
+
+// ── Admin: Employees ─────────────────────────────────────
+export const adminFetchEmployees = () =>
+  api.get('/employees').then(r => r.data);
+
+export const adminCreateEmployee = (data) =>
+  api.post('/employees', data).then(r => r.data);
+
+export const adminUpdateEmployee = (id, data) =>
+  api.put(`/employees/${id}`, data).then(r => r.data);
+
+export const adminDeleteEmployee = (id) =>
+  api.delete(`/employees/${id}`).then(r => r.data);
 
 // ── Auth ──────────────────────────────────────────────────
 export const adminLogin = (email, password) =>
