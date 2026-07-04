@@ -38,6 +38,7 @@ const Epaper = () => {
   // HD Reading View State
   const [zoomedReadingOpen, setZoomedReadingOpen] = useState(false);
   const [zoomTargetPos, setZoomTargetPos] = useState({ x: 0, y: 0 });
+  const [hdImageSrc, setHdImageSrc] = useState(null);
   const transformComponentRef = useRef(null);
   
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
@@ -116,6 +117,7 @@ const Epaper = () => {
   // Clipping Logic
   const handlePointerDown = (e) => {
     if (!isClippingMode || !containerRef.current) return;
+    e.target.setPointerCapture(e.pointerId);
     const rect = containerRef.current.getBoundingClientRect();
     setIsDragging(true);
     setClipStart({ x: e.clientX - rect.left, y: e.clientY - rect.top });
@@ -128,8 +130,13 @@ const Epaper = () => {
     setClipEnd({ x: e.clientX - rect.left, y: e.clientY - rect.top });
   };
 
-  const handlePointerUp = () => {
-    if (!isDragging || !isClippingMode || !containerRef.current) return;
+  const handlePointerUp = (e) => {
+    if (!isClippingMode || !containerRef.current) return;
+    if (e.target.hasPointerCapture && e.target.hasPointerCapture(e.pointerId)) {
+      e.target.releasePointerCapture(e.pointerId);
+    }
+    
+    if (!isDragging) return;
     setIsDragging(false);
     
     // Process Clip
@@ -474,6 +481,7 @@ const Epaper = () => {
                 onPointerDown={handlePointerDown}
                 onPointerMove={handlePointerMove}
                 onPointerUp={handlePointerUp}
+                onPointerCancel={handlePointerUp}
                 onPointerLeave={handlePointerUp}
                 onClick={(e) => {
                   if (isClippingMode || !containerRef.current) return;
@@ -485,6 +493,12 @@ const Epaper = () => {
                     x: clickX / rect.width,
                     y: clickY / rect.height
                   });
+                  
+                  const pdfCanvas = containerRef.current.querySelector('.react-pdf__Page__canvas');
+                  if (pdfCanvas) {
+                    setHdImageSrc(pdfCanvas.toDataURL('image/jpeg', 0.9));
+                  }
+                  
                   setZoomedReadingOpen(true);
                 }}
                 style={{ touchAction: isClippingMode ? 'none' : 'auto' }} // Prevent scrolling while clipping on mobile
@@ -592,9 +606,37 @@ const Epaper = () => {
             {/* Header */}
             <div className="h-[60px] bg-white border-b border-gray-200 shadow-sm flex items-center justify-between px-4 shrink-0 relative z-20">
               <h3 className="font-bold text-lg flex items-center text-gray-800"><FaSearchPlus className="mr-2 text-brand-red" /> Reading View</h3>
-              <button onClick={() => setZoomedReadingOpen(false)} className="text-gray-400 hover:text-gray-700 transition-colors p-2 rounded-full hover:bg-gray-100">
-                <FaTimes size={20} />
-              </button>
+              
+              <div className="flex items-center space-x-2">
+                <button 
+                  onClick={async () => {
+                    if (navigator.share && hdImageSrc) {
+                      const res = await fetch(hdImageSrc);
+                      const blob = await res.blob();
+                      const file = new File([blob], `screenshot.jpg`, { type: 'image/jpeg' });
+                      if (navigator.canShare({ files: [file] })) {
+                        navigator.share({ title: 'News Screenshot', files: [file] });
+                      }
+                    }
+                  }}
+                  className="text-gray-500 hover:text-[#25D366] transition-colors p-2 rounded-full hover:bg-gray-100"
+                  title="Share Screenshot"
+                >
+                  <FaShareAlt size={18} />
+                </button>
+                <a 
+                  href={hdImageSrc}
+                  download="screenshot.jpg"
+                  className="text-gray-500 hover:text-blue-600 transition-colors p-2 rounded-full hover:bg-gray-100"
+                  title="Download Screenshot"
+                >
+                  <FaDownload size={18} />
+                </a>
+                <div className="w-px h-6 bg-gray-300 mx-1"></div>
+                <button onClick={() => setZoomedReadingOpen(false)} className="text-gray-400 hover:text-gray-700 transition-colors p-2 rounded-full hover:bg-gray-100">
+                  <FaTimes size={20} />
+                </button>
+              </div>
             </div>
             
             {/* HD Document Container */}
@@ -613,38 +655,33 @@ const Epaper = () => {
                 style={{ width: '100%', height: '100%' }}
               >
                 <TransformComponent wrapperStyle={{ width: '100%', height: '100%' }} contentStyle={{ width: '100%', height: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                  <Document
-                    file={todayEdition?.pdf_url}
-                    loading={<div className="text-gray-400 font-bold w-full text-center mt-20">Loading High-Res Page...</div>}
-                    error={<div className="text-red-500 font-bold w-full text-center mt-20">Failed to load High-Res Page.</div>}
-                  >
-                    <Page 
-                      pageNumber={pageNumber} 
-                      scale={windowWidth < 768 ? 2.5 : 3.0} 
-                      renderTextLayer={false} 
-                      renderAnnotationLayer={false}
+                  {hdImageSrc ? (
+                    <img 
+                      src={hdImageSrc}
+                      alt="HD Page Snapshot"
                       className="shadow-md"
-                      loading={<div className="text-gray-400 w-[300px] h-[400px] flex items-center justify-center mx-auto">Rendering HD text...</div>}
-                      onRenderSuccess={() => {
+                      style={{ maxWidth: '100%', height: 'auto' }}
+                      onLoad={(e) => {
                         if (transformComponentRef.current) {
                           const { setTransform, instance } = transformComponentRef.current;
                           const wrapper = instance.wrapperComponent;
-                          const pageEl = wrapper?.querySelector('.react-pdf__Page');
+                          const imgEl = e.target;
                           
-                          if (pageEl && wrapper) {
+                          if (imgEl && wrapper) {
                             const containerW = wrapper.clientWidth;
                             const containerH = wrapper.clientHeight;
-                            // Calculate translation to center the clicked area
-                            const targetX = -((pageEl.clientWidth * zoomTargetPos.x) - (containerW / 2));
-                            const targetY = -((pageEl.clientHeight * zoomTargetPos.y) - (containerH / 2));
+                            const scale = 2.0; // Zoom in to 2x for reading
+                            const targetX = -((imgEl.clientWidth * scale * zoomTargetPos.x) - (containerW / 2));
+                            const targetY = -((imgEl.clientHeight * scale * zoomTargetPos.y) - (containerH / 2));
                             
-                            // Apply transform instantly (0ms)
-                            setTransform(targetX, targetY, 1, 0);
+                            setTransform(targetX, targetY, scale, 0);
                           }
                         }
                       }}
                     />
-                  </Document>
+                  ) : (
+                    <div className="text-gray-400 font-bold">Loading...</div>
+                  )}
                 </TransformComponent>
               </TransformWrapper>
             </div>
