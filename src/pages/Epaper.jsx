@@ -18,7 +18,7 @@ pdfjs.GlobalWorkerOptions.workerSrc = new URL(
 const Epaper = () => {
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
   const [todayEdition, setTodayEdition] = useState(null);
-  const [pastEditions, setPastEditions] = useState([]);
+  const [allEditions, setAllEditions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searching, setSearching] = useState(false);
   
@@ -39,6 +39,7 @@ const Epaper = () => {
   const [zoomedReadingOpen, setZoomedReadingOpen] = useState(false);
   const [zoomTargetPos, setZoomTargetPos] = useState({ x: 0, y: 0 });
   const [hdImageSrc, setHdImageSrc] = useState(null);
+  const [isGeneratingHd, setIsGeneratingHd] = useState(false);
   const transformComponentRef = useRef(null);
   
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
@@ -50,10 +51,7 @@ const Epaper = () => {
     const loadEditions = async () => {
       try {
         const data = await fetchEpapers();
-        if (data.length > 0) {
-          setTodayEdition(data[0]); // Latest edition as "today's"
-          setPastEditions(data.slice(1));
-        }
+        setAllEditions(data);
       } catch (err) {
         console.error('Error loading epapers:', err);
       } finally {
@@ -73,9 +71,13 @@ const Epaper = () => {
     setSearching(true);
     try {
       const edition = await fetchEpaperByDate(selectedDate);
-      setTodayEdition(edition);
+      if (edition) {
+        setAllEditions([edition]);
+      } else {
+        setAllEditions([]);
+      }
     } catch (err) {
-      setTodayEdition(null);
+      setAllEditions([]);
     } finally {
       setSearching(false);
     }
@@ -167,6 +169,7 @@ const Epaper = () => {
     
     // Process Clip
     if (clipStart && clipEnd) {
+      const rect = containerRef.current.getBoundingClientRect();
       const x1 = Math.min(clipStart.x, clipEnd.x);
       const y1 = Math.min(clipStart.y, clipEnd.y);
       const x2 = Math.max(clipStart.x, clipEnd.x);
@@ -174,10 +177,14 @@ const Epaper = () => {
       const width = x2 - x1;
       const height = y2 - y1;
 
-      if (width > 20 && height > 20) { // Ignore tiny accidental clicks
+      if (width > 20 && height > 20) { 
+        // User dragged to create a specific clip
         captureClip(x1, y1, width, height);
-        setIsClippingMode(false); // Turn off mode after a successful clip
+      } else {
+        // User just tapped - capture the whole page instead!
+        captureClip(0, 0, rect.width, rect.height);
       }
+      setIsClippingMode(false); // Turn off mode after a successful clip
     }
     
     // Reset selection box but keep modal open
@@ -247,6 +254,54 @@ const Epaper = () => {
     }
   };
 
+  const shareEdition = async (edition, e) => {
+    if (e) e.stopPropagation();
+    
+    const url = window.location.origin + window.location.pathname;
+    const title = `Shabdham E-Paper: ${edition.title}`;
+    const text = `${edition.title} - ${formatDate(edition.published_date)}\nRead at: ${url}`;
+    const fallbackText = encodeURIComponent(`${title} - ${formatDate(edition.published_date)}\nRead at: ${url}`);
+
+    try {
+      if (navigator.share) {
+        let filesArray = [];
+        if (edition.cover_image && navigator.canShare) {
+          try {
+            const res = await fetch(edition.cover_image);
+            const blob = await res.blob();
+            const file = new File([blob], `cover-edition.jpg`, { type: blob.type || 'image/jpeg' });
+            if (navigator.canShare({ files: [file] })) {
+              filesArray = [file];
+            }
+          } catch (imgErr) {
+            console.error("Could not fetch image for sharing", imgErr);
+          }
+        }
+        
+        const shareData = {
+          title: title,
+          text: text,
+          url: url // URL might be ignored by some apps if files are present, so it's in the text too
+        };
+        
+        if (filesArray.length > 0) {
+          shareData.files = filesArray;
+        }
+
+        await navigator.share(shareData);
+      } else {
+        // Fallback for desktop/unsupported browsers
+        window.open(`https://wa.me/?text=${fallbackText}`, '_blank');
+      }
+    } catch (err) {
+      console.error('Error sharing edition:', err);
+      // Fallback if not an AbortError (user cancelled)
+      if (err.name !== 'AbortError') {
+         window.open(`https://wa.me/?text=${fallbackText}`, '_blank');
+      }
+    }
+  };
+
   const closeViewer = () => {
     setIsPdfModalOpen(false);
     setScale(1.0);
@@ -313,111 +368,60 @@ const Epaper = () => {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-          
-          {/* Today's Edition - Main Display */}
-          <div className="lg:col-span-8">
-            {todayEdition ? (
-              <div className="bg-white p-4 md:p-6 rounded-xl shadow-md border border-gray-100 relative group">
-                <div className="absolute top-8 -left-2 bg-brand-red text-white font-bold px-4 py-1.5 rounded-r shadow-lg z-10 text-sm tracking-wide">
-                  {formatShortDate(todayEdition.published_date) === formatShortDate(new Date().toISOString()) ? "TODAY'S EDITION" : formatShortDate(todayEdition.published_date)}
-                </div>
-                
-                <div 
-                  className="aspect-[3/4] w-full bg-gray-200 rounded-lg overflow-hidden border-2 border-gray-100 mb-6 relative cursor-pointer"
-                  onClick={() => setIsPdfModalOpen(true)}
-                >
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+          {allEditions.length === 0 ? (
+            <div className="col-span-full bg-white p-12 rounded-xl shadow-md border border-gray-100 text-center">
+              <p className="text-xl font-bold text-gray-400 mb-2">ఈ తేదీకి సంచిక అందుబాటులో లేదు</p>
+              <p className="text-gray-400 text-sm">No editions available.</p>
+            </div>
+          ) : (
+            allEditions.map((edition) => (
+              <div 
+                key={edition.id} 
+                className="bg-white p-3 rounded-lg shadow-sm border border-gray-200 group cursor-pointer hover:border-brand-red transition-all hover:shadow-md flex flex-col"
+                onClick={() => {
+                  setTodayEdition(edition);
+                  setIsPdfModalOpen(true);
+                }}
+              >
+                <div className="aspect-[3/4] w-full bg-gray-100 rounded overflow-hidden mb-3 relative border border-gray-100">
                   <img 
-                    src={todayEdition.cover_image || 'https://placehold.co/800x1000?text=No+Cover'} 
-                    alt={todayEdition.title}
-                    className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700"
+                    src={edition.cover_image || 'https://placehold.co/400x500?text=No+Cover'} 
+                    alt={edition.title} 
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                   />
-                  
-                  {todayEdition.pdf_url && (
-                    <div className="absolute inset-0 w-full h-full bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-[2px]">
-                      <span className="bg-white text-brand-red font-bold py-3 px-8 rounded-full shadow-2xl transform hover:scale-105 transition-transform text-lg pointer-events-none">
-                        చదవండి (Read Now)
+                  {edition.pdf_url && (
+                    <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-[2px]">
+                      <span className="bg-brand-red text-white font-bold py-2 px-6 rounded-full shadow-lg text-sm pointer-events-none transform -translate-y-2 group-hover:translate-y-0 transition-transform">
+                        చదవండి
                       </span>
                     </div>
                   )}
-                </div>
-
-                <div className="flex flex-col sm:flex-row justify-between items-center gap-4 border-t border-gray-100 pt-6">
-                  <div>
-                    <h3 className="text-xl font-bold text-gray-800">{todayEdition.title}</h3>
-                    <p className="text-gray-500 font-semibold">{formatDate(todayEdition.published_date)}</p>
-                    <p className="text-xs text-gray-400 mt-1">{todayEdition.pages} page{todayEdition.pages !== 1 ? 's' : ''}</p>
-                  </div>
-                  
-                  <div className="flex items-center space-x-3 w-full sm:w-auto">
-                    {todayEdition.pdf_url && (
-                      <button 
-                        onClick={() => setIsPdfModalOpen(true)}
-                        className="flex-1 sm:flex-none flex items-center justify-center bg-brand-red hover:bg-red-700 text-white font-bold py-2.5 px-5 rounded-lg transition-colors shadow-sm"
-                      >
-                        చదవండి
-                      </button>
-                    )}
-                    <button 
-                      onClick={() => {
-                        const url = todayEdition.pdf_url || window.location.href;
-                        const text = encodeURIComponent(`${todayEdition.title} - ${formatDate(todayEdition.published_date)}\n${url}`);
-                        window.open(`https://wa.me/?text=${text}`, '_blank');
-                      }}
-                      className="flex-1 sm:flex-none flex items-center justify-center bg-[#25D366] hover:bg-[#1da851] text-white font-bold py-2.5 px-5 rounded-lg transition-colors shadow-sm"
-                    >
-                      <FaWhatsapp className="mr-2" size={18} /> Share
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ) : (
-              <div className="bg-white p-12 rounded-xl shadow-md border border-gray-100 text-center">
-                <p className="text-xl font-bold text-gray-400 mb-2">ఈ తేదీకి సంచిక అందుబాటులో లేదు</p>
-                <p className="text-gray-400 text-sm">No edition available for the selected date.</p>
-              </div>
-            )}
-          </div>
-
-          {/* Past Editions Grid */}
-          <div className="lg:col-span-4">
-            <h3 className="text-xl font-bold text-gray-800 mb-6 flex items-center">
-              <span className="w-1.5 h-6 bg-[#1a237e] mr-2 inline-block"></span>
-              గత సంచికలు
-            </h3>
-            
-            {pastEditions.length === 0 ? (
-              <p className="text-gray-400 text-sm bg-white p-6 rounded-xl border border-gray-100 text-center">
-                గత సంచికలు అందుబాటులో లేవు.
-              </p>
-            ) : (
-              <div className="grid grid-cols-2 gap-4">
-                {pastEditions.slice(0, 6).map((edition) => (
-                  <div 
-                    key={edition.id} 
-                    className="bg-white p-2 rounded-lg shadow-sm border border-gray-200 group cursor-pointer hover:border-brand-red transition-colors"
-                    onClick={() => {
-                      setTodayEdition(edition);
-                      setSelectedDate(edition.published_date.split('T')[0]);
-                      window.scrollTo({ top: 0, behavior: 'smooth' });
-                    }}
-                  >
-                    <div className="aspect-[3/4] w-full bg-gray-100 rounded overflow-hidden mb-2 relative">
-                      <img 
-                        src={edition.cover_image || 'https://placehold.co/400x500?text=No+Cover'} 
-                        alt={edition.title} 
-                        className="w-full h-full object-cover grayscale opacity-80 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-300"
-                      />
-                      <div className="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors"></div>
+                  {formatShortDate(edition.published_date) === formatShortDate(new Date().toISOString()) && (
+                    <div className="absolute top-2 -left-1 bg-brand-red text-white font-bold px-2 py-1 rounded-r shadow-lg z-10 text-[10px] tracking-wide">
+                      TODAY
                     </div>
-                    <p className="text-center text-xs font-bold text-gray-700 group-hover:text-brand-red">
+                  )}
+                </div>
+                
+                <div className="flex justify-between items-start mt-auto pt-2 border-t border-gray-50">
+                  <div className="flex-1 min-w-0 pr-2">
+                    <h3 className="font-bold text-gray-800 text-sm truncate">{edition.title}</h3>
+                    <p className="text-xs font-semibold text-gray-500 mt-0.5">
                       {formatShortDate(edition.published_date)}
                     </p>
                   </div>
-                ))}
+                  <button 
+                    onClick={(e) => shareEdition(edition, e)}
+                    className="text-gray-400 hover:text-[#25D366] hover:bg-green-50 p-1.5 rounded-full transition-colors shrink-0"
+                    title="Share to WhatsApp"
+                  >
+                    <FaWhatsapp size={16} />
+                  </button>
+                </div>
               </div>
-            )}
-          </div>
+            ))
+          )}
         </div>
       </div>
 
@@ -428,7 +432,7 @@ const Epaper = () => {
           {/* Top Header */}
           <div className="h-[60px] bg-white border-b border-gray-200 shadow-sm flex items-center justify-between px-2 md:px-4 shrink-0 relative z-20">
             {/* Left: Home & Title */}
-            <div className="flex items-center space-x-3 w-1/3 truncate">
+            <div className="flex items-center space-x-2 md:space-x-3 flex-1 min-w-0 pr-1">
               <button 
                 onClick={closeViewer} 
                 className="w-10 h-10 rounded-full flex items-center justify-center bg-gray-100 hover:bg-gray-200 text-gray-700 transition-colors shrink-0"
@@ -443,7 +447,7 @@ const Epaper = () => {
             </div>
 
             {/* Center: Zoom & Clip */}
-            <div className="flex items-center justify-center space-x-2 md:space-x-4 w-1/3">
+            <div className="flex items-center justify-center space-x-1 sm:space-x-2 md:space-x-4 shrink-0 z-10">
               <button 
                 onClick={() => changeScale(-0.25)} 
                 disabled={scale <= 0.5}
@@ -476,16 +480,9 @@ const Epaper = () => {
             </div>
 
             {/* Right: Share, Download */}
-            <div className="flex items-center justify-end space-x-2 w-1/3">
+            <div className="flex items-center justify-end space-x-2 flex-1 pl-1">
               <button 
-                onClick={() => {
-                  const url = todayEdition.pdf_url;
-                  if (navigator.share) {
-                    navigator.share({ title: todayEdition.title, url: url });
-                  } else {
-                    window.open(`https://wa.me/?text=${encodeURIComponent(url)}`, '_blank');
-                  }
-                }}
+                onClick={() => shareEdition(todayEdition)}
                 className="hidden sm:flex p-2 text-gray-600 hover:text-[#25D366] hover:bg-green-50 rounded-lg transition-colors"
                 title="Share Full Edition"
               >
@@ -520,10 +517,6 @@ const Epaper = () => {
                 onPointerUp={handlePointerUp}
                 onPointerCancel={handlePointerUp}
                 onPointerLeave={handlePointerUp}
-                onTouchStart={handlePointerDown}
-                onTouchMove={handlePointerMove}
-                onTouchEnd={handlePointerUp}
-                onTouchCancel={handlePointerUp}
                 onClick={(e) => {
                   if (isClippingMode || !containerRef.current) return;
                   const rect = containerRef.current.getBoundingClientRect();
@@ -535,12 +528,19 @@ const Epaper = () => {
                     y: clickY / rect.height
                   });
                   
-                  const pdfCanvas = containerRef.current.querySelector('.react-pdf__Page__canvas');
-                  if (pdfCanvas) {
-                    setHdImageSrc(pdfCanvas.toDataURL('image/jpeg', 0.9));
-                  }
-                  
+                  setHdImageSrc(null);
+                  setIsGeneratingHd(true);
                   setZoomedReadingOpen(true);
+                  
+                  setTimeout(() => {
+                    if (containerRef.current) {
+                      const pdfCanvas = containerRef.current.querySelector('.react-pdf__Page__canvas');
+                      if (pdfCanvas) {
+                        setHdImageSrc(pdfCanvas.toDataURL('image/jpeg', 0.9));
+                      }
+                    }
+                    setIsGeneratingHd(false);
+                  }, 50);
                 }}
                 style={{ touchAction: isClippingMode ? 'none' : 'auto' }} // Prevent scrolling while clipping on mobile
               >
@@ -689,7 +689,7 @@ const Epaper = () => {
                 style={{ width: '100%', height: '100%' }}
               >
                 <TransformComponent wrapperStyle={{ width: '100%', height: '100%' }} contentStyle={{ width: '100%', height: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                  {hdImageSrc ? (
+                  {hdImageSrc && !isGeneratingHd ? (
                     <img 
                       src={hdImageSrc}
                       alt="HD Page Snapshot"
@@ -714,7 +714,10 @@ const Epaper = () => {
                       }}
                     />
                   ) : (
-                    <div className="text-gray-400 font-bold">Loading...</div>
+                    <div className="flex flex-col items-center justify-center text-gray-500 font-bold h-full">
+                       <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-brand-red mb-3"></div>
+                       <span>Loading screenshot...</span>
+                    </div>
                   )}
                 </TransformComponent>
               </TransformWrapper>
