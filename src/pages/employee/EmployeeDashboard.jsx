@@ -8,7 +8,7 @@ const EmployeeDashboard = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const stored = localStorage.getItem('adminUser');
+    const stored = localStorage.getItem('employee_user');
     if (stored) {
       setUser(JSON.parse(stored));
     }

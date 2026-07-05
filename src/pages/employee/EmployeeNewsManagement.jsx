@@ -21,7 +21,7 @@ const EmployeeNewsManagement = () => {
   const [user, setUser] = useState(null);
 
   useEffect(() => {
-    const stored = localStorage.getItem('adminUser');
+    const stored = localStorage.getItem('employee_user');
     if (stored) {
       setUser(JSON.parse(stored));
     }
