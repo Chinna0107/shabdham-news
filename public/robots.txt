@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /employee-login
+Disallow: /login
+Disallow: /employee
+
+Sitemap: https://shabdhamtv.com/sitemap.xml
