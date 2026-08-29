@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { FaBars, FaTimes, FaAngleDown, FaSearch } from 'react-icons/fa';
+import { FaBars, FaTimes, FaAngleDown, FaSearch, FaHome } from 'react-icons/fa';
 import { cn } from '../../utils/cn';
 import { fetchCategories } from '../../services/api';
 import logoImage from '../../assets/logo.jpeg';
@@ -69,14 +69,22 @@ const Navbar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
     <>
       <div
         className={cn(
-          'hidden md:block w-full text-white shadow-lg z-40 transition-all duration-300 border-b border-white/10',
-          isSticky ? 'fixed top-0 left-0 animate-slideDown glass-dark' : 'relative premium-gradient'
+          'hidden md:block w-full text-white shadow-lg z-40 transition-all duration-300 border-t-[3px] border-[#cc0000]',
+          isSticky ? 'fixed top-0 left-0 animate-slideDown bg-[#113a69]' : 'relative bg-[#113a69]'
         )}
       >
-        <div className="w-full px-4 lg:px-8 xl:px-12">
-          <div className="flex justify-between items-center min-h-[52px] py-2 lg:py-0">
+        <div className="w-full mx-auto max-w-[1400px]">
+          <div className="flex justify-between items-center min-h-[48px]">
             {/* Desktop Menu */}
-            <nav ref={dropdownRef} className="hidden md:flex items-center justify-center lg:justify-between h-full w-full flex-wrap lg:flex-nowrap gap-y-2">
+            <nav ref={dropdownRef} className="hidden md:flex items-center h-full w-full flex-wrap lg:flex-nowrap">
+              
+              {/* Home Icon */}
+              <div className="h-full relative group shrink-0 flex items-center">
+                <Link to="/" className="flex items-center justify-center bg-[#cc0000] px-5 py-3.5 h-full border-r border-[#1a4a7f]/30 hover:bg-[#b30000] transition-colors">
+                  <FaHome className="text-[#ffcc00]" size={20} />
+                </Link>
+              </div>
+
               {categories.map((cat, idx) => (
                 <div 
                   key={idx} 
@@ -86,13 +94,13 @@ const Navbar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
                     to={cat.path}
                     onClick={(e) => {
                       if (cat.subItems) {
-                        e.preventDefault(); // Prevent navigation if they just want to open the dropdown, or maybe we want both? Actually, just toggle dropdown
+                        e.preventDefault();
                         setDropdownOpen(dropdownOpen === idx ? null : idx);
                       }
                     }}
                     className={cn(
-                      'flex items-center px-2 lg:px-[10px] py-1.5 lg:py-4 h-full font-bold text-[13.5px] hover:bg-white hover:text-[#20297b] transition-colors whitespace-nowrap rounded-sm lg:rounded-none cursor-pointer',
-                      (cat.exact ? location.pathname === cat.path : location.pathname.includes(cat.path)) ? 'bg-white text-[#20297b]' : ''
+                      'flex items-center px-4 lg:px-[18px] py-3.5 h-full font-bold text-[14px] lg:text-[15px] hover:bg-[#cc0000] text-white transition-colors whitespace-nowrap border-r border-white/10 cursor-pointer drop-shadow-md',
+                      (cat.exact ? location.pathname === cat.path : location.pathname.includes(cat.path)) ? 'bg-[#cc0000]' : ''
                     )}
                   >
                     {cat.name} {cat.subItems && <FaAngleDown className="ml-1 opacity-80" size={12} />}

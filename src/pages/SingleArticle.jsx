@@ -4,7 +4,7 @@ import { Helmet } from 'react-helmet-async';
 import { fetchArticle, fetchAds } from '../services/api';
 import Sidebar from '../components/Sidebar/Sidebar';
 import { FaFacebookF, FaTwitter, FaWhatsapp, FaLink, FaFont, FaPlus, FaMinus } from 'react-icons/fa';
-
+import logoImage from '../assets/logo.jpeg';
 const SingleArticle = () => {
   const { slug } = useParams();
   const [article, setArticle] = useState(null);
@@ -156,8 +156,19 @@ const SingleArticle = () => {
             </div>
           </div>
 
-          <div className="mb-8">
-              <img src={article.image} alt={article.title} className="w-full rounded object-cover max-h-[500px]" />
+          <div className="mb-8 relative rounded overflow-hidden">
+              <img src={article.image} alt={article.title} className="w-full object-cover max-h-[500px]" />
+              
+              {/* Top Left Logo Overlay */}
+              <div className="absolute top-4 left-4 bg-white/70 p-1.5 rounded backdrop-blur-sm shadow-md">
+                <img src={logoImage} alt="Balagam TV" className="h-10 md:h-14 object-contain" />
+              </div>
+
+              {/* Bottom Right Domain Overlay */}
+              <div className="absolute bottom-4 right-4 bg-black/70 text-white px-3 py-1.5 rounded-sm flex items-center space-x-2 backdrop-blur-sm text-xs md:text-sm shadow-lg border border-white/10">
+                <img src={logoImage} alt="Balagam TV" className="h-4 w-4 md:h-5 md:w-5 rounded bg-white object-cover" />
+                <span className="font-semibold tracking-wide">shabdhamtv.com</span>
+              </div>
             </div>
 
             <div 

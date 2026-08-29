@@ -1,12 +1,231 @@
 import React, { useState, useEffect } from 'react';
 import { adminFetchNews, adminCreateNews, adminUpdateNews, adminDeleteNews, fetchCategories } from '../../services/api';
-import { FaEdit, FaTrashAlt, FaSearch } from 'react-icons/fa';
+import { FaEdit, FaTrashAlt, FaSearch, FaEye, FaTimes, FaFacebookF, FaTwitter, FaWhatsapp, FaLink, FaFont, FaPlus, FaMinus, FaClock, FaUser } from 'react-icons/fa';
 import Modal from '../../components/Admin/Modal';
 import CloudinaryUpload from '../../components/Admin/CloudinaryUpload';
 
 const emptyForm = { title: '', slug: '', content: '', excerpt: '', image: '', author: '', category: '', sub_category: '', is_published: true, is_trending: false, created_at: '' };
 
 const toSlug = (text) => text.toLowerCase().trim().replace(/\s+/g, '-').replace(/[^\w-]/g, '').slice(0, 80);
+
+const getISTTime = (dateStr) => {
+  if (!dateStr) return '';
+  return new Date(dateStr).toLocaleDateString('en-IN', {
+    year: 'numeric', month: 'long', day: 'numeric',
+    hour: '2-digit', minute: '2-digit',
+  });
+};
+
+/* ── Article Preview Modal ──────────────────────────────── */
+function ArticlePreviewModal({ article, onClose }) {
+  const [textSize, setTextSize] = useState(17);
+  if (!article) return null;
+
+  const categoryName = article.category || 'వార్తలు';
+  const readMin = Math.max(1, Math.ceil((article.content?.replace(/<[^>]*>/g, '').length || 500) / 1000));
+
+  return (
+    <div style={{
+      position: 'fixed', inset: 0, zIndex: 9000,
+      background: 'rgba(15,23,42,0.7)',
+      backdropFilter: 'blur(6px)',
+      display: 'flex', flexDirection: 'column',
+      overflow: 'hidden',
+    }}>
+
+      {/* Top bar */}
+      <div style={{
+        flexShrink: 0,
+        background: '#1e293b',
+        padding: '12px 20px',
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        borderBottom: '2px solid #c8102e',
+        gap: 12,
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <span style={{
+            background: 'linear-gradient(135deg,#c8102e,#f97316)',
+            color: '#fff', fontSize: 10, fontWeight: 800,
+            padding: '3px 10px', borderRadius: 20,
+            letterSpacing: 1.5, textTransform: 'uppercase',
+          }}>Preview Mode</span>
+          <span style={{
+            color: '#94a3b8', fontSize: 13, fontWeight: 500,
+            maxWidth: 500, overflow: 'hidden', whiteSpace: 'nowrap',
+            textOverflow: 'ellipsis',
+          }}>{article.title}</span>
+        </div>
+        <button
+          onClick={onClose}
+          style={{
+            background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)',
+            borderRadius: 8, color: '#fff', padding: '6px 16px',
+            fontSize: 13, fontWeight: 700, cursor: 'pointer',
+            display: 'flex', alignItems: 'center', gap: 6,
+          }}
+        >
+          <FaTimes size={12} /> Close Preview
+        </button>
+      </div>
+
+      {/* Scrollable preview area */}
+      <div style={{ flex: 1, overflowY: 'auto', background: '#f8fafc' }}>
+        <div style={{ maxWidth: 860, margin: '0 auto', padding: '32px 20px 60px' }}>
+
+          {/* Category badge */}
+          <div style={{ marginBottom: 16 }}>
+            <span style={{
+              background: '#c8102e', color: '#fff',
+              fontSize: 11, fontWeight: 800, padding: '4px 14px',
+              borderRadius: 20, textTransform: 'uppercase', letterSpacing: 0.8,
+            }}>{categoryName}</span>
+          </div>
+
+          {/* Title */}
+          <h1 style={{
+            fontSize: 'clamp(22px, 4vw, 34px)', fontWeight: 800,
+            color: '#0f172a', lineHeight: 1.3, marginBottom: 20,
+          }}>{article.title}</h1>
+
+          {/* Meta row */}
+          <div style={{
+            display: 'flex', flexWrap: 'wrap', alignItems: 'center',
+            gap: 16, padding: '14px 0', borderTop: '1px solid #e2e8f0',
+            borderBottom: '1px solid #e2e8f0', marginBottom: 24,
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <div style={{
+                width: 34, height: 34, borderRadius: '50%',
+                background: 'linear-gradient(135deg,#c8102e,#f97316)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                color: '#fff', fontWeight: 800, fontSize: 14, flexShrink: 0,
+              }}>
+                {(article.author || 'A').charAt(0).toUpperCase()}
+              </div>
+              <div>
+                <div style={{ fontSize: 13, fontWeight: 700, color: '#1e293b' }}>
+                  By {article.author || 'Admin'}
+                </div>
+                <div style={{ fontSize: 11, color: '#94a3b8' }}>
+                  {getISTTime(article.created_at || new Date().toISOString())}
+                </div>
+              </div>
+            </div>
+            <div style={{
+              display: 'flex', alignItems: 'center', gap: 5,
+              background: '#f1f5f9', padding: '4px 10px', borderRadius: 20,
+            }}>
+              <FaClock size={10} color="#94a3b8" />
+              <span style={{ fontSize: 11, color: '#64748b', fontWeight: 600 }}>
+                {readMin} min read
+              </span>
+            </div>
+            {/* Text size controls */}
+            <div style={{
+              display: 'flex', alignItems: 'center', gap: 6,
+              background: '#f1f5f9', padding: '4px 10px', borderRadius: 20, marginLeft: 'auto',
+            }}>
+              <FaFont size={10} color="#94a3b8" />
+              <button onClick={() => setTextSize(s => Math.max(14, s - 2))}
+                style={{ border: 'none', background: 'none', cursor: 'pointer', color: '#475569', padding: 2 }}>
+                <FaMinus size={9} />
+              </button>
+              <span style={{ fontSize: 11, fontWeight: 700, color: '#475569', minWidth: 16, textAlign: 'center' }}>{textSize}</span>
+              <button onClick={() => setTextSize(s => Math.min(26, s + 2))}
+                style={{ border: 'none', background: 'none', cursor: 'pointer', color: '#475569', padding: 2 }}>
+                <FaPlus size={9} />
+              </button>
+            </div>
+          </div>
+
+          {/* Hero image */}
+          {article.image && (
+            <div style={{ marginBottom: 28, borderRadius: 12, overflow: 'hidden', boxShadow: '0 4px 20px rgba(0,0,0,0.1)' }}>
+              <img
+                src={article.image}
+                alt={article.title}
+                style={{ width: '100%', maxHeight: 460, objectFit: 'cover', display: 'block' }}
+              />
+            </div>
+          )}
+
+          {/* Excerpt */}
+          {article.excerpt && (
+            <p style={{
+              fontSize: 16, color: '#475569', fontStyle: 'italic',
+              lineHeight: 1.7, marginBottom: 24,
+              borderLeft: '3px solid #c8102e', paddingLeft: 16,
+              background: '#fff7f7', padding: '14px 16px', borderRadius: '0 8px 8px 0',
+            }}>
+              {article.excerpt}
+            </p>
+          )}
+
+          {/* Content */}
+          <div
+            style={{ fontSize: textSize, color: '#374151', lineHeight: 1.85, marginBottom: 32 }}
+            dangerouslySetInnerHTML={{ __html: article.content || '<p>No content yet.</p>' }}
+          />
+
+          {/* Author bio */}
+          {article.author && (
+            <div style={{
+              background: '#fff', border: '1px solid #e2e8f0',
+              borderRadius: 12, padding: 20, marginBottom: 24,
+              display: 'flex', gap: 16, alignItems: 'flex-start',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+            }}>
+              <div style={{
+                width: 52, height: 52, borderRadius: '50%', flexShrink: 0,
+                background: 'linear-gradient(135deg,#c8102e,#f97316)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                color: '#fff', fontWeight: 800, fontSize: 20,
+              }}>
+                {article.author.charAt(0).toUpperCase()}
+              </div>
+              <div>
+                <div style={{ fontWeight: 700, fontSize: 15, color: '#0f172a', marginBottom: 4 }}>
+                  {article.author}
+                </div>
+                <div style={{ fontSize: 13, color: '#64748b', lineHeight: 1.6 }}>
+                  Senior Correspondent at Shabdham TV. Covering local and regional news, politics, and social issues.
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Tags */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, paddingTop: 20, borderTop: '1px solid #e2e8f0' }}>
+            <span style={{ fontWeight: 700, fontSize: 13, color: '#475569' }}>Tags:</span>
+            <span style={{ background: '#f1f5f9', color: '#475569', fontSize: 12, padding: '4px 12px', borderRadius: 20 }}>
+              {categoryName}
+            </span>
+            <span style={{ background: '#f1f5f9', color: '#475569', fontSize: 12, padding: '4px 12px', borderRadius: 20 }}>
+              Telugu News
+            </span>
+            {article.is_trending && (
+              <span style={{ background: '#fff7ed', color: '#f97316', fontSize: 12, padding: '4px 12px', borderRadius: 20, fontWeight: 700 }}>
+                🔥 Trending
+              </span>
+            )}
+          </div>
+
+          {/* Publish status banner */}
+          {!article.is_published && (
+            <div style={{
+              marginTop: 28, padding: '14px 18px',
+              background: '#fef9c3', border: '1px solid #fde047',
+              borderRadius: 10, fontSize: 13, fontWeight: 600, color: '#854d0e',
+              display: 'flex', alignItems: 'center', gap: 8,
+            }}>
+              ⚠️ This article is currently a <strong>Draft</strong> and is not visible to readers.
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
 
 const NewsManagement = () => {
   const [news, setNews] = useState([]);
@@ -18,6 +237,7 @@ const NewsManagement = () => {
   const [formData, setFormData] = useState(emptyForm);
   const [error, setError] = useState('');
   const [categories, setCategories] = useState([]);
+  const [previewArticle, setPreviewArticle] = useState(null);
 
   // Derived: parent categories (no parent_id) and children grouped by parent
   const parentCategories = categories.filter(c => !c.parent_id);
@@ -130,6 +350,9 @@ const NewsManagement = () => {
 
   return (
     <div>
+      {previewArticle && (
+        <ArticlePreviewModal article={previewArticle} onClose={() => setPreviewArticle(null)} />
+      )}
       <div className="flex flex-col md:flex-row md:justify-between md:items-end gap-4 mb-8">
         <div>
           <h1 className="text-3xl font-bold text-[#1e293b] mb-1">News Management</h1>
@@ -205,6 +428,9 @@ const NewsManagement = () => {
                     </td>
                     <td className="py-4 px-6 text-right">
                       <div className="flex items-center justify-end space-x-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <button onClick={() => setPreviewArticle(item)} title="Preview" className="w-8 h-8 rounded-lg bg-purple-50 text-purple-600 flex items-center justify-center hover:bg-purple-100 transition-colors">
+                          <FaEye size={14} />
+                        </button>
                         <button onClick={() => openModal(item)} className="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center hover:bg-blue-100 transition-colors">
                           <FaEdit size={14} />
                         </button>

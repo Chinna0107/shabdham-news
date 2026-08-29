@@ -3,10 +3,10 @@ import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaHome, FaThLarge, FaWhatsapp, FaChartLine, FaRegNewspaper, FaTimes, FaRegImage, FaRegPlayCircle } from 'react-icons/fa';
 
-import { 
-  FaMapMarkerAlt, FaMap, FaBullhorn, FaBolt, FaGavel, 
-  FaTrophy, FaHeartbeat, FaClock, FaBookOpen, FaCity, 
-  FaFlag, FaGlobe, FaBriefcase, FaMicrochip 
+import {
+  FaMapMarkerAlt, FaMap, FaBullhorn, FaBolt, FaGavel,
+  FaTrophy, FaHeartbeat, FaClock, FaBookOpen, FaCity,
+  FaFlag, FaGlobe, FaBriefcase, FaMicrochip
 } from 'react-icons/fa';
 
 const mobileCategories = [
@@ -39,59 +39,59 @@ const MobileBottomNav = ({ onWhatsAppClick }) => {
   return (
     <>
       <div className="md:hidden fixed bottom-0 left-0 w-full bg-[#111] text-gray-400 z-50 shadow-[0_-4px_10px_rgba(0,0,0,0.2)]">
-      <div className="flex justify-between items-end px-2 pt-2 pb-1 relative h-[60px]">
-        
-        <Link to="/flip" className="flex flex-col items-center justify-center flex-1 hover:text-white transition-colors">
-          <FaHome size={20} className="mb-1" />
-          <span className="text-[10px] font-bold">వార్తలు</span>
-        </Link>
-        
-        <button 
-          onClick={() => setIsCategoriesOpen(true)}
-          className="flex flex-col items-center justify-center flex-1 hover:text-white transition-colors"
-        >
-          <FaThLarge size={20} className="mb-1" />
-          <span className="text-[10px] font-bold">విభాగాలు</span>
-        </button>
-        
-        <div className="flex-1 flex flex-col items-center justify-center relative h-full">
-          <button 
-            onClick={(e) => {
-              e.preventDefault();
-              if (onWhatsAppClick) onWhatsAppClick();
-            }}
-            className="absolute -top-[28px] left-1/2 -translate-x-1/2 bg-[#25D366] text-white p-3.5 rounded-full border-[5px] border-[#111] shadow-lg hover:scale-105 transition-transform"
-          >
-            <FaWhatsapp size={24} />
-          </button>
-          <span className="text-[10px] font-bold text-[#25D366] absolute bottom-1">షేర్</span>
-        </div>
-        
-        <Link to="/trending" className="flex flex-col items-center justify-center flex-1 hover:text-white transition-colors text-brand-red">
-          <FaChartLine size={20} className="mb-1" />
-          <span className="text-[10px] font-bold text-white">ట్రెండింగ్</span>
-        </Link>
-        
-        <Link to="/epaper" className="flex flex-col items-center justify-center flex-1 hover:text-white transition-colors">
-          <FaRegNewspaper size={20} className="mb-1" />
-          <span className="text-[10px] font-bold">ఈ-పేపర్</span>
-        </Link>
+        <div className="flex justify-between items-end px-2 pt-2 pb-1 relative h-[60px]">
 
+          <Link to="/flip" className="flex flex-col items-center justify-center flex-1 hover:text-white transition-colors">
+            <FaHome size={20} className="mb-1" />
+            <span className="text-[10px] font-bold">వార్తలు</span>
+          </Link>
+
+          <button
+            onClick={() => setIsCategoriesOpen(true)}
+            className="flex flex-col items-center justify-center flex-1 hover:text-white transition-colors"
+          >
+            <FaThLarge size={20} className="mb-1" />
+            <span className="text-[10px] font-bold">విభాగాలు</span>
+          </button>
+
+          <div className="flex-1 flex flex-col items-center justify-center relative h-full">
+            <button
+              onClick={(e) => {
+                e.preventDefault();
+                if (onWhatsAppClick) onWhatsAppClick();
+              }}
+              className="absolute -top-[28px] left-1/2 -translate-x-1/2 bg-[#25D366] text-white p-3.5 rounded-full border-[5px] border-[#111] shadow-lg hover:scale-105 transition-transform"
+            >
+              <FaWhatsapp size={24} />
+            </button>
+            <span className="text-[10px] font-bold text-[#25D366] absolute bottom-1">షేర్</span>
+          </div>
+
+          <Link to="/trending" className="flex flex-col items-center justify-center flex-1 hover:text-white transition-colors text-brand-red">
+            <FaChartLine size={20} className="mb-1" />
+            <span className="text-[10px] font-bold text-white">ట్రెండింగ్</span>
+          </Link>
+
+          <Link to="/epaper" className="flex flex-col items-center justify-center flex-1 hover:text-white transition-colors">
+            <FaRegNewspaper size={20} className="mb-1" />
+            <span className="text-[10px] font-bold">ఈ-పేపర్</span>
+          </Link>
+
+        </div>
       </div>
-    </div>
 
       {/* Categories Modal Overlay */}
       <AnimatePresence>
         {isCategoriesOpen && (
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="md:hidden fixed inset-0 z-[60] flex items-end justify-center bg-black/60 backdrop-blur-sm" 
+            className="md:hidden fixed inset-0 z-[60] flex items-end justify-center bg-black/60 backdrop-blur-sm"
             onClick={() => setIsCategoriesOpen(false)}
           >
-            <motion.div 
+            <motion.div
               initial={{ y: "100%" }}
               animate={{ y: 0 }}
               exit={{ y: "100%" }}
@@ -102,22 +102,22 @@ const MobileBottomNav = ({ onWhatsAppClick }) => {
               {/* Header */}
               <div className="flex justify-between items-center p-6 pb-4 border-b border-gray-100">
                 <h2 className="text-xl font-bold text-gray-900 tracking-wide">వార్తా విభాగాలు</h2>
-                <button 
+                <button
                   onClick={() => setIsCategoriesOpen(false)}
                   className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-600 hover:bg-gray-200 transition-colors"
                 >
                   <FaTimes size={16} />
                 </button>
               </div>
-              
+
               {/* Grid */}
               <div className="flex-1 overflow-y-auto p-6 bg-white pb-20">
                 <div className="grid grid-cols-3 gap-x-4 gap-y-6">
                   {mobileCategories.map((cat, idx) => {
                     const Icon = cat.icon || FaRegImage;
                     return (
-                      <div 
-                        key={idx} 
+                      <div
+                        key={idx}
                         onClick={() => handleCategoryClick(cat.path)}
                         className="flex flex-col items-center cursor-pointer group"
                       >

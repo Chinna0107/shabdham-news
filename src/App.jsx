@@ -1,8 +1,11 @@
-import { Routes, Route, Outlet } from 'react-router-dom';
+import { Routes, Route, Outlet, useLocation } from 'react-router-dom';
+import { useState, useEffect } from 'react';
 import Header from './components/Header/Header';
 import Footer from './components/Footer/Footer';
 import MobileBottomNav from './components/MobileBottomNav';
 import { FaWhatsapp } from 'react-icons/fa';
+import SplashScreen from './components/SplashScreen';
+import TrendingPopup from './components/TrendingPopup';
 
 // Pages
 import Home from './pages/Home';
@@ -58,7 +61,24 @@ const MainLayout = () => {
 };
 
 function App() {
+  const location = useLocation();
+  const isPublicRoute = !location.pathname.startsWith('/admin') &&
+                        !location.pathname.startsWith('/employee') &&
+                        !location.pathname.startsWith('/login') &&
+                        !location.pathname.startsWith('/employee-login');
+
+  const [showSplash,   setShowSplash]   = useState(() => isPublicRoute && !sessionStorage.getItem('splashShown'));
+  const [showTrending, setShowTrending] = useState(false);
+
+  const handleSplashDone = () => {
+    sessionStorage.setItem('splashShown', '1');
+    setShowSplash(false);
+    setShowTrending(true);
+  };
   return (
+    <>
+      {showSplash  && <SplashScreen onDone={handleSplashDone} />}
+      {showTrending && isPublicRoute && <TrendingPopup onClose={() => setShowTrending(false)} />}
     <Routes>
       <Route path="/" element={<MainLayout />}>
         <Route index element={<Home />} />
@@ -110,6 +130,7 @@ function App() {
         </Route>
       </Route>
     </Routes>
+    </>
   );
 }
 

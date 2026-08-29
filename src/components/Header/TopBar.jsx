@@ -1,41 +1,123 @@
-import { FaRegClock, FaMapMarkerAlt, FaBell } from 'react-icons/fa';
-const today = new Date();
-
-const formattedDate = today.toLocaleDateString("te-IN", {
-  day: "numeric",
-  month: "long",
-  year: "numeric",
-  weekday: "long",
-});
+import { useState, useEffect } from 'react';
+import { FaCalendarAlt, FaMapMarkerAlt, FaCircle } from 'react-icons/fa';
 
 const TopBar = () => {
+  const [now, setNow] = useState(new Date());
+
+  // Tick every second for live clock
+  useEffect(() => {
+    const id = setInterval(() => setNow(new Date()), 1000);
+    return () => clearInterval(id);
+  }, []);
+
+  const formattedDate = now.toLocaleDateString('te-IN', {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  });
+
+  const formattedTime = now.toLocaleTimeString('en-IN', {
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: true,
+  });
+
   return (
-    <div className="bg-[#1a237e] text-white text-[13px] py-1.5 w-full">
-      <div className="w-full px-4 lg:px-8 xl:px-12 flex justify-between items-center">
-        <div className="flex items-center space-x-4 md:space-x-6">
-         <div className="flex items-center space-x-2">
-  <FaRegClock />
-  <span>{formattedDate}</span>
-</div>
-          <div className="hidden md:flex items-center space-x-2">
-            <FaMapMarkerAlt />
-            <span>తెలంగాణ</span>
+    <div style={{
+      background: 'linear-gradient(90deg, #0f1b6e 0%, #1a237e 50%, #0f1b6e 100%)',
+      borderBottom: '2px solid #c8102e',
+      padding: '5px 0',
+    }}>
+      <div style={{
+        maxWidth: '100%',
+        padding: '0 16px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        gap: 8,
+      }}>
+
+        {/* Left — Live dot + Date */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+
+          {/* Live indicator */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <span style={{
+              display: 'inline-block',
+              width: 7, height: 7,
+              borderRadius: '50%',
+              background: '#ef4444',
+              boxShadow: '0 0 0 2px rgba(239,68,68,0.3)',
+              animation: 'topbar-pulse 1.4s ease-in-out infinite',
+              flexShrink: 0,
+            }} />
+            <span style={{
+              fontSize: 9, fontWeight: 800, color: '#ef4444',
+              letterSpacing: 1.5, textTransform: 'uppercase',
+            }}>LIVE</span>
+          </div>
+
+          {/* Divider */}
+          <div style={{ width: 1, height: 14, background: 'rgba(255,255,255,0.2)' }} />
+
+          {/* Calendar icon + Date */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
+            <FaCalendarAlt size={11} style={{ color: '#93c5fd', flexShrink: 0 }} />
+            <span style={{
+              fontSize: 12, fontWeight: 600, color: '#e0e7ff',
+              letterSpacing: 0.2,
+              whiteSpace: 'nowrap',
+            }}>
+              {formattedDate}
+            </span>
+          </div>
+
+          {/* Location — desktop only */}
+          <div style={{ display: 'none' }} className="md-loc">
+            <div style={{ width: 1, height: 14, background: 'rgba(255,255,255,0.2)' }} />
+            <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+              <FaMapMarkerAlt size={11} style={{ color: '#93c5fd' }} />
+              <span style={{ fontSize: 12, color: '#c7d2fe', fontWeight: 600 }}>తెలంగాణ</span>
+            </div>
           </div>
         </div>
-        
-        {/* Right side: Notifications & Language Toggle */}
-        <div className="hidden md:flex items-center space-x-5">
-          <div className="flex items-center space-x-1.5 cursor-pointer hover:text-[#ff3333] transition-colors">
-            <FaBell size={14} /> 
-            <span className="font-semibold tracking-wide">Notifications</span>
-          </div>
-          <div className="flex items-center space-x-2 bg-white/10 rounded px-2 py-0.5 text-xs font-bold">
-            <button className="text-white hover:text-gray-200 transition-colors">ENG</button>
-            <span className="text-gray-400">|</span>
-            <button className="text-gray-400 hover:text-white transition-colors">తెలు</button>
+
+        {/* Right — Live digital clock */}
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: 8,
+        }}>
+          <div style={{
+            background: 'rgba(255,255,255,0.08)',
+            border: '1px solid rgba(255,255,255,0.15)',
+            borderRadius: 8,
+            padding: '3px 12px',
+            display: 'flex', alignItems: 'center', gap: 7,
+          }}>
+            <span style={{
+              fontSize: 13, fontWeight: 800,
+              color: '#ffffff',
+              fontFamily: '"Courier New", monospace',
+              letterSpacing: 1,
+              minWidth: 90,
+              textAlign: 'center',
+            }}>
+              {formattedTime}
+            </span>
           </div>
         </div>
       </div>
+
+      <style>{`
+        @keyframes topbar-pulse {
+          0%, 100% { opacity: 1; transform: scale(1); }
+          50%       { opacity: 0.5; transform: scale(0.8); }
+        }
+        @media (min-width: 768px) {
+          .md-loc { display: flex !important; align-items: center; gap: 10px; }
+        }
+      `}</style>
     </div>
   );
 };

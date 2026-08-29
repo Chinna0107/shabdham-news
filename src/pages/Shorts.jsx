@@ -9,6 +9,7 @@ import {
   FaArrowLeft, FaFire, FaHeart, FaRegHeart,
   FaBookmark, FaRegBookmark, FaShareAlt, FaClock, FaWhatsapp
 } from 'react-icons/fa';
+import logoImage from '../assets/logo.jpeg';
 
 const toIST = (raw) => {
   if (!raw) return '';
@@ -26,48 +27,61 @@ function NewsCard({ article, isTrending, liked, bookmarked, onLike, onBookmark, 
     <div style={{
       width: '100%', height: '100%',
       display: 'flex', flexDirection: 'column',
-      background: '#0f172a', overflow: 'hidden',
+      background: '#ffffff', overflow: 'hidden',
       position: 'relative',
     }}>
       <div style={{
         flex: '0 0 54%',
         position: 'relative',
-        background: '#1e293b',
+        background: '#f1f5f9',
         overflow: 'hidden',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
       }}>
         {!loaded && (
           <div style={{
             position: 'absolute', inset: 0,
-            background: 'linear-gradient(90deg,#1e293b 25%,#2d3f55 50%,#1e293b 75%)',
+            background: 'linear-gradient(90deg,#e2e8f0 25%,#f8fafc 50%,#e2e8f0 75%)',
             backgroundSize: '200% 100%',
             animation: 'shimmer 1.5s infinite',
           }} />
         )}
         <img
-          src={article.image || 'https://placehold.co/800x480/1e293b/2d3f55?text='}
+          src={article.image || 'https://placehold.co/800x450/e2e8f0/94a3b8?text=No+Image'}
           alt={article.title}
           draggable={false}
           onLoad={() => setLoaded(true)}
           style={{
-            width: '100%', height: '100%',
-            objectFit: 'cover', display: 'block',
+            width: '100%',
+            height: '100%',
+            objectFit: 'contain',
+            objectPosition: 'center',
+            display: 'block',
             opacity: loaded ? 1 : 0,
             transition: 'opacity 0.4s ease',
             pointerEvents: 'none',
           }}
         />
         <div style={{
-          position: 'absolute', top: 0, left: 0, right: 0, height: 90,
-          background: 'linear-gradient(to bottom,rgba(0,0,0,0.6),transparent)',
+          position: 'absolute', bottom: 0, left: 0, right: 0, height: 50,
+          background: 'linear-gradient(to top,#ffffff,transparent)',
           pointerEvents: 'none',
         }} />
+        
+        {/* Top Left Logo Overlay (Moved down to avoid back button) */}
         <div style={{
-          position: 'absolute', bottom: 0, left: 0, right: 0, height: 60,
-          background: 'linear-gradient(to top,#0f172a,transparent)',
-          pointerEvents: 'none',
-        }} />
+          position: 'absolute', top: 56, left: 12,
+          backgroundColor: 'rgba(255, 255, 255, 0.7)', padding: '6px',
+          borderRadius: '4px', backdropFilter: 'blur(4px)',
+          boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
+        }}>
+          <img src={logoImage} alt="Shabdham TV" style={{ height: '32px', objectFit: 'contain' }} />
+        </div>
+
+        {/* Category & Trending Tags - Moved to Bottom Left */}
         <div style={{
-          position: 'absolute', top: 14, left: 14,
+          position: 'absolute', bottom: 12, left: 12,
           display: 'flex', gap: 6, flexWrap: 'wrap', alignItems: 'center',
         }}>
           <span style={{
@@ -88,25 +102,39 @@ function NewsCard({ article, isTrending, liked, bookmarked, onLike, onBookmark, 
             </span>
           )}
         </div>
+
+        {/* Bottom Right Domain Overlay */}
+        <div style={{
+          position: 'absolute', bottom: 12, right: 12,
+          backgroundColor: 'rgba(0, 0, 0, 0.7)', color: 'white',
+          padding: '4px 10px', borderRadius: '4px',
+          display: 'flex', alignItems: 'center', gap: '8px',
+          backdropFilter: 'blur(4px)',
+          boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
+          border: '1px solid rgba(255, 255, 255, 0.1)'
+        }}>
+          <img src={logoImage} alt="Shabdham TV" style={{ height: '16px', width: '16px', borderRadius: '4px', backgroundColor: 'white', objectFit: 'cover' }} />
+          <span style={{ fontSize: '12px', fontWeight: 600, letterSpacing: '0.025em' }}>shabdhamtv.com</span>
+        </div>
       </div>
 
       <div style={{
         flex: 1,
         display: 'flex', flexDirection: 'column',
         padding: '14px 18px 0',
-        background: '#0f172a',
+        background: '#ffffff',
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginBottom: 8 }}>
-          <FaClock size={10} color="#475569" />
-          <span style={{ fontSize: 11, color: '#475569', fontWeight: 500 }}>
+          <FaClock size={10} color="#94a3b8" />
+          <span style={{ fontSize: 11, color: '#64748b', fontWeight: 600 }}>
             {toIST(article.created_at)}
           </span>
         </div>
 
         <Link to={`/article/${article.slug}`} style={{ textDecoration: 'none', color: 'inherit' }}>
           <h2 style={{
-            fontSize: 19, fontWeight: 800, color: '#f1f5f9',
-            lineHeight: 1.35, marginBottom: 10,
+            fontSize: 22, fontWeight: 800, color: '#0f172a',
+            lineHeight: 1.35, marginBottom: 12,
             overflow: 'hidden', display: '-webkit-box',
             WebkitLineClamp: 3, WebkitBoxOrient: 'vertical',
           }}>
@@ -115,10 +143,10 @@ function NewsCard({ article, isTrending, liked, bookmarked, onLike, onBookmark, 
         </Link>
 
         <p style={{
-          fontSize: 13, color: '#94a3b8', lineHeight: 1.6,
+          fontSize: 16, color: '#475569', lineHeight: 1.6,
           overflow: 'hidden', display: '-webkit-box',
           WebkitLineClamp: 5, WebkitBoxOrient: 'vertical',
-          marginBottom: 8
+          marginBottom: 10
         }}>
           {article.excerpt || (article.content ? article.content.replace(/<[^>]*>?/gm, '') : '')}
         </p>
@@ -126,9 +154,9 @@ function NewsCard({ article, isTrending, liked, bookmarked, onLike, onBookmark, 
         <Link 
           to={`/article/${article.slug}`} 
           style={{
-            color: '#b00020', fontSize: 13, fontWeight: 700, 
+            color: '#b00020', fontSize: 15, fontWeight: 700, 
             textDecoration: 'none', display: 'inline-block',
-            marginTop: 'auto', paddingBottom: 10
+            marginTop: 'auto', paddingBottom: 12
           }}
         >
           మరింత చదవండి &rarr;
@@ -139,8 +167,8 @@ function NewsCard({ article, isTrending, liked, bookmarked, onLike, onBookmark, 
         flexShrink: 0,
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
         padding: '10px 18px 12px',
-        background: '#0f172a',
-        borderTop: '1px solid rgba(255,255,255,0.05)',
+        background: '#ffffff',
+        borderTop: '1px solid rgba(0,0,0,0.07)',
       }} />
     </div>
   );
@@ -305,12 +333,12 @@ export default function Shorts({ type = 'news' }) {
           position: 'fixed', inset: 0, zIndex: 300,
           display: 'flex', flexDirection: 'column',
           alignItems: 'center', justifyContent: 'center',
-          background: '#0f172a', gap: 14,
+          background: '#ffffff', gap: 14,
         }}>
           <style>{`@keyframes spin { to { transform:rotate(360deg); } }`}</style>
           <div style={{
             width: 36, height: 36, borderRadius: '50%',
-            border: '3px solid #1e293b', borderTopColor: '#b00020',
+            border: '3px solid #e2e8f0', borderTopColor: '#b00020',
             animation: 'spin 0.75s linear infinite',
           }} />
           <p style={{ color: '#64748b', fontSize: 14, fontWeight: 600 }}>లోడ్ అవుతోంది...</p>
@@ -322,7 +350,7 @@ export default function Shorts({ type = 'news' }) {
           position: 'fixed', inset: 0, zIndex: 300,
           display: 'flex', flexDirection: 'column',
           alignItems: 'center', justifyContent: 'center',
-          background: '#0f172a', color: '#fff', gap: 16,
+          background: '#ffffff', color: '#0f172a', gap: 16,
         }}>
           <FaFire size={44} color="#f97316" />
           <p style={{ fontSize: 18, fontWeight: 700 }}>
@@ -340,7 +368,7 @@ export default function Shorts({ type = 'news' }) {
             position: 'fixed',
             inset: 0,
             overflow: 'hidden',
-            background: '#000',
+            background: '#f1f5f9',
             touchAction: 'none',
             perspective: 1200,
           }}
@@ -370,21 +398,22 @@ export default function Shorts({ type = 'news' }) {
           position: 'fixed', top: 0, left: 0, right: 0, zIndex: 60,
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
           padding: '14px 18px',
-          background: 'linear-gradient(to bottom, rgba(0,0,0,0.65), transparent)',
+          background: 'linear-gradient(to bottom, rgba(255,255,255,0.92), transparent)',
           pointerEvents: 'none',
+          borderBottom: '1px solid rgba(0,0,0,0.06)',
         }}>
-          <Link to="/" style={{ color: '#fff', pointerEvents: 'auto', lineHeight: 1, padding: 4 }}>
+          <Link to="/" style={{ color: '#0f172a', pointerEvents: 'auto', lineHeight: 1, padding: 4 }}>
             <FaArrowLeft size={18} />
           </Link>
           <span style={{
-            color: '#fff', fontWeight: 800, fontSize: 12,
+            color: '#0f172a', fontWeight: 800, fontSize: 12,
             letterSpacing: 2.5, textTransform: 'uppercase',
             display: 'flex', alignItems: 'center', gap: 6,
           }}>
             {isTrending && <FaFire style={{ color: '#f97316' }} size={12} />}
             {isTrending ? 'TRENDING' : 'LATEST NEWS'}
           </span>
-          <span style={{ color: 'rgba(255,255,255,0.45)', fontSize: 11, fontWeight: 700 }}>
+          <span style={{ color: '#94a3b8', fontSize: 11, fontWeight: 700 }}>
             {activeIdx + 1} / {news.length}
           </span>
         </div>
@@ -407,7 +436,7 @@ export default function Shorts({ type = 'news' }) {
                   width: ri === activeIdx ? 7 : 4,
                   height: ri === activeIdx ? 7 : 4,
                   borderRadius: '50%',
-                  background: ri === activeIdx ? '#b00020' : 'rgba(255,255,255,0.3)',
+                  background: ri === activeIdx ? '#b00020' : 'rgba(0,0,0,0.18)',
                   transition: 'all 0.2s ease',
                   flexShrink: 0,
                 }} />

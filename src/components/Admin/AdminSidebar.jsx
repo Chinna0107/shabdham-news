@@ -29,7 +29,7 @@ const navItems = [
 
 const AdminSidebar = ({ onClose }) => {
   const navigate = useNavigate();
-  const [user, setUser] = React.useState({ name: 'Super Admin', email: 'admin@balagamtv.com' });
+  const [user, setUser] = React.useState({ name: 'Super Admin', email: 'admin@shabdhamtv.com' });
 
   React.useEffect(() => {
     const storedUser = localStorage.getItem('admin_user');

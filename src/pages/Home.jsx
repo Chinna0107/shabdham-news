@@ -3,7 +3,7 @@ import { Helmet } from 'react-helmet-async';
 import { fetchNews } from '../services/api';
 import { Link, useNavigate } from 'react-router-dom';
 import CategoryBlock from '../components/NewsCard/CategoryBlock';
-import { FaWhatsapp } from 'react-icons/fa';
+import { FaWhatsapp, FaHome } from 'react-icons/fa';
 
 const CATEGORY_BLOCKS = [
   { title: 'తాజా వార్తలు', slug: null, titleColor: 'text-brand-red', borderColor: 'border-brand-red' },
@@ -94,13 +94,16 @@ const Home = () => {
       <div className="w-full px-4 lg:px-8 xl:px-12 pt-6 bg-brand-gray min-h-screen">
         
         {/* Mobile Categories Scroll */}
-        <div className="md:hidden w-full overflow-x-auto hide-scrollbar mb-6 -mx-4 px-4 pb-2">
-          <div className="flex items-center gap-3 w-[max-content]">
+        <div className="md:hidden w-full overflow-x-auto hide-scrollbar mb-6 bg-[#113a69] border-t-[3px] border-[#cc0000] shadow-sm -mx-4 w-[calc(100%+2rem)]">
+          <div className="flex items-center w-[max-content] h-full">
+            <Link to="/" className="flex items-center justify-center bg-[#cc0000] px-4 py-2.5 h-full border-r border-[#1a4a7f]/30 hover:bg-[#b30000] transition-colors shrink-0">
+              <FaHome className="text-[#ffcc00]" size={18} />
+            </Link>
             {CATEGORY_BLOCKS.map((cat, idx) => (
               <Link
                 key={idx}
                 to={cat.slug ? `/category/${cat.slug}` : '/'}
-                className="bg-white border border-gray-200 shadow-sm rounded-full px-4 py-1.5 text-[13px] font-bold text-gray-700 hover:text-brand-red hover:border-brand-red transition-colors whitespace-nowrap"
+                className="px-4 py-2.5 h-full text-[14px] font-bold text-white hover:bg-[#cc0000] transition-colors whitespace-nowrap border-r border-white/10 drop-shadow-sm flex items-center"
               >
                 {cat.title}
               </Link>
@@ -110,7 +113,7 @@ const Home = () => {
 
         {/* HERO */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-10">
-          <div className="lg:col-span-8 relative group overflow-hidden rounded-2xl cursor-pointer premium-shadow min-h-[300px] sm:min-h-[400px] lg:h-[450px]">
+          <div className="lg:col-span-8 relative group overflow-hidden rounded-2xl cursor-pointer premium-shadow min-h-[400px] sm:min-h-[500px] lg:h-[600px]">
             <Link to={`/article/${heroNews.slug}`} className="block w-full h-full">
               <img
                 src={heroNews.image || 'https://placehold.co/800x450?text=No+Image'}
@@ -118,17 +121,17 @@ const Home = () => {
                 className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
               />
               <div className="absolute top-4 left-4 z-10">
-                <span className="inline-block bg-brand-red text-white text-xs font-bold px-3 py-1 rounded-sm shadow">
+                <span className="inline-block bg-brand-red text-white text-sm font-bold px-3.5 py-1.5 rounded-sm shadow">
                   {heroNews.category || 'వార్తలు'}
                 </span>
               </div>
               <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
               <div className="absolute bottom-0 left-0 p-6 sm:p-8 w-full z-10">
-                <h1 className="text-white text-2xl sm:text-3xl md:text-4xl font-bold leading-tight mb-2 group-hover:text-gray-200 transition-colors">
+                <h1 className="text-white text-3xl sm:text-4xl md:text-5xl font-bold leading-tight mb-3 group-hover:text-gray-200 transition-colors drop-shadow-md">
                   {heroNews.title}
                 </h1>
-                <div className="text-gray-300 text-sm mt-3 flex items-center">
-                  <span className="w-2 h-2 rounded-full bg-brand-red mr-2" />
+                <div className="text-gray-200 text-base font-medium mt-3 flex items-center">
+                  <span className="w-2.5 h-2.5 rounded-full bg-brand-red mr-2.5 shadow-sm" />
                   {heroNews.author || 'అడ్మిన్'}
                 </div>
               </div>
@@ -139,7 +142,7 @@ const Home = () => {
             {subHeroNews.length > 0 ? subHeroNews.map((article, idx) => (
               <div key={idx} className="group cursor-pointer bg-white rounded-2xl premium-shadow overflow-hidden flex flex-col flex-1 min-h-[200px] hover:-translate-y-1 transition-transform duration-300">
                 <Link to={`/article/${article.slug}`} className="h-full flex flex-col">
-                  <div className="relative h-[130px] overflow-hidden shrink-0">
+                  <div className="relative h-[200px] overflow-hidden shrink-0">
                     <img
                       src={article.image || 'https://placehold.co/400x130?text=No+Image'}
                       alt={article.title}
@@ -147,7 +150,7 @@ const Home = () => {
                     />
                   </div>
                   <div className="p-4 flex-grow flex items-center">
-                    <h2 className="text-gray-800 text-[15px] font-bold leading-snug group-hover:text-brand-red transition-colors line-clamp-2">
+                    <h2 className="text-gray-800 text-[17px] font-bold leading-snug group-hover:text-brand-red transition-colors line-clamp-2">
                       {article.title}
                     </h2>
                   </div>

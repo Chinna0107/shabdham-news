@@ -29,7 +29,7 @@ const MobileTicker = () => {
       <div className="w-full h-[44px] bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 shadow-sm sticky top-0 z-[60] overflow-hidden flex items-center md:hidden">
         <div className="bg-red-600 px-3 py-1.5 flex items-center gap-1.5 shrink-0 z-10 shadow-[2px_0_10px_rgba(0,0,0,0.1)]">
           <div className="w-1.5 h-1.5 rounded-full bg-white animate-pulse"></div>
-          <span className="text-white text-[11px] font-bold uppercase tracking-wider">Breaking</span>
+          <span className="text-white text-[13px] font-bold uppercase tracking-wider">Breaking</span>
         </div>
         <div className="flex-1 flex gap-4 px-4 overflow-hidden animate-pulse">
           <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-20 shrink-0"></div>
@@ -45,9 +45,9 @@ const MobileTicker = () => {
       <div className="w-full h-[44px] bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 shadow-sm sticky top-0 z-[60] flex items-center md:hidden">
         <div className="bg-red-600 px-3 py-1.5 flex items-center gap-1.5 shrink-0 z-10">
           <div className="w-1.5 h-1.5 rounded-full bg-white animate-pulse"></div>
-          <span className="text-white text-[11px] font-bold uppercase tracking-wider">Breaking</span>
+          <span className="text-white text-[13px] font-bold uppercase tracking-wider">Breaking</span>
         </div>
-        <span className="text-[13px] text-gray-500 font-semibold px-4">No Breaking News Available</span>
+        <span className="text-[16px] text-gray-500 font-semibold px-4">No Breaking News Available</span>
       </div>
     );
   }
@@ -70,7 +70,7 @@ const MobileTicker = () => {
       {/* Left Badge (Fixed) */}
       <div className="bg-red-600 px-3 py-1.5 flex items-center gap-1.5 shrink-0 z-10 h-full shadow-[5px_0_15px_-3px_rgba(255,255,255,1)]">
         <div className="w-1.5 h-1.5 rounded-full bg-white animate-pulse shadow-[0_0_5px_rgba(255,255,255,0.8)]"></div>
-        <span className="text-white text-[11px] font-bold uppercase tracking-wider">Breaking</span>
+        <span className="text-white text-[13px] font-bold uppercase tracking-wider">Breaking</span>
       </div>
       
       {/* Fade mask for smooth entry behind the badge */}
@@ -91,11 +91,11 @@ const MobileTicker = () => {
                 {item.category || 'NEWS'}
               </span>
               {item.article_slug ? (
-                <Link to={`/article/${item.article_slug}`} className="text-[14px] md:text-[15px] font-semibold text-gray-800 hover:text-red-600 transition-colors">
+                <Link to={`/article/${item.article_slug}`} className="text-[16px] md:text-[17px] font-semibold text-gray-800 hover:text-red-600 transition-colors">
                   {item.title}
                 </Link>
               ) : (
-                <span className="text-[14px] md:text-[15px] font-semibold text-gray-800">
+                <span className="text-[16px] md:text-[17px] font-semibold text-gray-800">
                   {item.title}
                 </span>
               )}
