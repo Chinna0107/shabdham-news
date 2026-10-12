@@ -1,0 +1,23 @@
+[
+  {
+    "id": 1,
+    "title": "ముఖ్యమంత్రితో ప్రత్యేక ముఖాముఖి",
+    "thumbnail": "https://images.unsplash.com/photo-1579781354186-011d7fc408f4?w=800&q=80",
+    "url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+    "duration": "12:45"
+  },
+  {
+    "id": 2,
+    "title": "గ్రౌండ్ రిపోర్ట్: ఉత్తరాది జిల్లాల్లో వరద బీభత్సం",
+    "thumbnail": "https://images.unsplash.com/photo-1547683905-f686c993aae5?w=800&q=80",
+    "url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+    "duration": "08:20"
+  },
+  {
+    "id": 3,
+    "title": "టెక్ రివ్యూ: సరికొత్త స్మార్ట్‌ఫోన్ లాంచ్",
+    "thumbnail": "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=800&q=80",
+    "url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+    "duration": "15:10"
+  }
+]
